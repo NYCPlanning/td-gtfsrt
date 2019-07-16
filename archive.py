@@ -36,7 +36,7 @@ for i in d:
         realtime=pd.DataFrame()
         schedule=pd.DataFrame()
         feed = gtfs_realtime_pb2.FeedMessage()
-        f=[x for x in os.listdir(path+i+'/') if x.startswith('gtfs_'+j+'_'+i)].sort()
+        f=[x for x in os.listdir(path+i+'/') if x.startswith('gtfs_'+j+'_'+i)]
         for k in f:
             try:
                 response=urllib.request.urlopen('file:///'+path+i+'/'+k)
