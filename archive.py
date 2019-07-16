@@ -12,6 +12,8 @@ pd.set_option('display.max_columns', None)
 path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
 
+start=datetime.datetime.now()
+
 
 
 def calduration(df):
@@ -87,6 +89,7 @@ def dailycleangtfsrt(d):
 dates=['20190501']
 dailycleangtfsrt(dates[0])
 
+print(datetime.datetime.now()-start)
 
 #tp=tp[tp.starthour.isin(['06','07','08','09'])]
 #tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
