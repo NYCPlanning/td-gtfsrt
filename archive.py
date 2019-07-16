@@ -29,17 +29,16 @@ def calduration(df):
 
 
 
-d=['20190501']
-r=['7','ace','bdfm','g','j','L','nqrw']
-for i in d:
-    for j in r:
+def dailycleangtfsrt(d):
+    r=['7','ace','bdfm','g','j','L','nqrw']
+    for i in r:
         realtime=pd.DataFrame()
         schedule=pd.DataFrame()
         feed = gtfs_realtime_pb2.FeedMessage()
-        f=[x for x in os.listdir(path+i+'/') if x.startswith('gtfs_'+j+'_'+i)]
-        for k in f:
+        f=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+i+'_'+d)])
+        for j in f:
             try:
-                response=urllib.request.urlopen('file:///'+path+i+'/'+k)
+                response=urllib.request.urlopen('file:///'+path+d+'/'+j)
                 feed.ParseFromString(response.read())
                 for entity in feed.entity:
                     if entity.HasField('trip_update'):
@@ -63,10 +62,10 @@ for i in d:
                             sc=calduration(sc)
                             schedule=schedule.append(sc,ignore_index=True)
                         except:
-                            print(str(k)+' entity error')
+                            print(str(j)+' entity error')
                 response.close()
             except:
-                print(str(k)+' response error')
+                print(str(j)+' response error')
         rttp=realtime.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
         rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
         rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
@@ -82,8 +81,11 @@ for i in d:
                'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
         tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                     'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-        tp.to_csv(path+'Output/'+i+'_'+j+'.csv',index=False)
+        tp.to_csv(path+'Output/'+d+'_'+i+'.csv',index=False)
 
+
+dates=['20190501']
+dailycleangtfsrt(dates[0])
 
 
 #tp=tp[tp.starthour.isin(['06','07','08','09'])]
