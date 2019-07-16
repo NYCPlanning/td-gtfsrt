@@ -9,3 +9,13 @@ feed.ParseFromString(response.content)
 for entity in feed.entity:
   if entity.HasField('trip_update'):
     print(entity.trip_update)
+
+
+
+
+
+import gtfs_tripify as gt
+response1 = requests.get('http://datamine.mta.info/mta_esi.php?key='+str(key)+'&feed_id=1')
+response2 = requests.get('http://datamine.mta.info/mta_esi.php?key='+str(key)+'&feed_id=51')
+stream = [response1.content,response2.content]
+logbook, timestamps, parse_errors = gt.logify(stream)
