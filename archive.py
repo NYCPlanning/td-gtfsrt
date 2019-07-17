@@ -13,8 +13,6 @@ pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
-#d='20190501'
-routes=['7','ace','bdfm','g','j','L','nqrw']
 
 
 
@@ -99,7 +97,8 @@ def cleangtfsrt(r):
 
 
 if __name__=='__main__':
-    dates=['20190501','20190502']
+    dates=['20190501']
+    routes=['7','ace','bdfm','g','j','L','nqrw']
     for d in dates:
         parallelize(routes, cleangtfsrt)
         print(datetime.datetime.now()-start)
