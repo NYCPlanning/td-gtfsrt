@@ -99,7 +99,7 @@ def cleangtfsrt(r):
 
 
 if __name__=='__main__':
-    dates=['20190501']
+    dates=['20190501','20190502']
     for d in dates:
         parallelize(routes, cleangtfsrt)
         print(datetime.datetime.now()-start)
