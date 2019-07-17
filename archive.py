@@ -1,18 +1,30 @@
-import os
 from google.transit import gtfs_realtime_pb2
+import multiprocessing as mp
+import os
 import urllib
 import pandas as pd
 import datetime
 import numpy as np
 
 
+start=datetime.datetime.now()
 
 pd.set_option('display.max_columns', None)
-path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-#path='/home/mayijun/GTFS-RT/'
+#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
+d='20190501'
+routes=['7','ace','bdfm','g','j','L','nqrw']
 
-start=datetime.datetime.now()
+
+
+def parallelize(data, func):
+    data_split = np.array_split(data,mp.cpu_count()-2)
+    pool = mp.Pool(mp.cpu_count()-2)
+    pool.map(func, data_split)
+    pool.close()
+    pool.join()
+    return data
 
 
 
@@ -31,16 +43,15 @@ def calduration(df):
 
 
 
-def dailycleangtfsrt(d):
-    r=['7','ace','bdfm','g','j','L','nqrw']
-    for i in r:
+def cleangtfsrt(r):
+    for t in r:
         realtime=pd.DataFrame()
         schedule=pd.DataFrame()
         feed = gtfs_realtime_pb2.FeedMessage()
-        f=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+i+'_'+d)])
-        for j in f:
+        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])[0:200]
+        for f in files:
             try:
-                response=urllib.request.urlopen('file:///'+path+d+'/'+j)
+                response=urllib.request.urlopen('file:///'+path+d+'/'+f)
                 feed.ParseFromString(response.read())
                 for entity in feed.entity:
                     if entity.HasField('trip_update'):
@@ -64,10 +75,10 @@ def dailycleangtfsrt(d):
                             sc=calduration(sc)
                             schedule=schedule.append(sc,ignore_index=True)
                         except:
-                            print(str(j)+' entity error')
+                            print(str(f)+' entity error')
                 response.close()
             except:
-                print(str(j)+' response error')
+                print(str(f)+' response error')
         rttp=realtime.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
         rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
         rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
@@ -83,13 +94,21 @@ def dailycleangtfsrt(d):
                'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
         tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                     'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-        tp.to_csv(path+'Output/'+d+'_'+i+'.csv',index=False)
+        tp.to_csv(path+'Output/'+d+'_'+t+'.csv',index=False)
 
 
-dates=['20190501']
-dailycleangtfsrt(dates[0])
 
-print(datetime.datetime.now()-start)
+if __name__=='__main__':
+    parallelize(routes, cleangtfsrt)
+    print(datetime.datetime.now()-start)
+
+
+
+
+
+
+
+
 
 #tp=tp[tp.starthour.isin(['06','07','08','09'])]
 #tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
