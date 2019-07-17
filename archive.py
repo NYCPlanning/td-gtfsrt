@@ -13,14 +13,14 @@ pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
-d='20190501'
+#d='20190501'
 routes=['7','ace','bdfm','g','j','L','nqrw']
 
 
 
 def parallelize(data, func):
-    data_split = np.array_split(data,mp.cpu_count()-2)
-    pool = mp.Pool(mp.cpu_count()-2)
+    data_split = np.array_split(data,mp.cpu_count()-1)
+    pool = mp.Pool(mp.cpu_count()-1)
     pool.map(func, data_split)
     pool.close()
     pool.join()
@@ -48,7 +48,7 @@ def cleangtfsrt(r):
         realtime=pd.DataFrame()
         schedule=pd.DataFrame()
         feed = gtfs_realtime_pb2.FeedMessage()
-        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])[0:200]
+        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])[0:100]
         for f in files:
             try:
                 response=urllib.request.urlopen('file:///'+path+d+'/'+f)
@@ -99,8 +99,10 @@ def cleangtfsrt(r):
 
 
 if __name__=='__main__':
-    parallelize(routes, cleangtfsrt)
-    print(datetime.datetime.now()-start)
+    dates=['20190501']
+    for d in dates:
+        parallelize(routes, cleangtfsrt)
+        print(datetime.datetime.now()-start)
 
 
 
