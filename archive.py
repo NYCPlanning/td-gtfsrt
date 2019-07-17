@@ -16,16 +16,6 @@ stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
 
-def parallelize(data, func):
-    data_split = np.array_split(data,mp.cpu_count()-1)
-    pool = mp.Pool(mp.cpu_count()-1)
-    pool.map(func, data_split)
-    pool.close()
-    pool.join()
-    return data
-
-
-
 def calduration(df):
     df['startstopid']=df['stopid']
     df['starttime']=df['time']
@@ -46,7 +36,7 @@ def cleangtfsrt(r):
         realtime=pd.DataFrame()
         schedule=pd.DataFrame()
         feed = gtfs_realtime_pb2.FeedMessage()
-        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])[0:100]
+        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])
         for f in files:
             try:
                 response=urllib.request.urlopen('file:///'+path+d+'/'+f)
@@ -93,6 +83,16 @@ def cleangtfsrt(r):
         tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                     'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
         tp.to_csv(path+'Output/'+d+'_'+t+'.csv',index=False)
+
+
+
+def parallelize(data, func):
+    data_split = np.array_split(data,mp.cpu_count()-1)
+    pool = mp.Pool(mp.cpu_count()-1)
+    pool.map(func, data_split)
+    pool.close()
+    pool.join()
+    return data
 
 
 
