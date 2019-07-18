@@ -8,8 +8,8 @@ import time
 import numpy as np
 
 
-start=datetime.datetime.now()
 
+start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
@@ -87,7 +87,7 @@ if __name__=='__main__':
             sctp=pd.DataFrame(columns=['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration'])
             sctp.to_csv(path+'Output/sctp.csv',index=False,header=True,mode='w')
             feed = gtfs_realtime_pb2.FeedMessage()
-            files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+r+'_'+d)])[0:100]
+            files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+r+'_'+d)])
             parallelize(files, cleangtfsrt)
             rttp=pd.read_csv(path+'Output/rttp.csv',dtype=str)
             rttp['time']=pd.to_numeric(rttp['time'])
@@ -111,7 +111,7 @@ if __name__=='__main__':
             tp.to_csv(path+'Output/'+d+'_'+r+'2.csv',index=False,header=True,mode='w')            
     print(datetime.datetime.now()-start)
 
-
+# 01:06.5
 
 
 #tp=tp[tp.starthour.isin(['06','07','08','09'])]
