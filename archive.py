@@ -11,8 +11,8 @@ import numpy as np
 
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
-#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
@@ -32,58 +32,37 @@ def calduration(df):
 
 
 
-def cleangtfsrt(r):
-    for t in r:
-        realtime=pd.DataFrame()
-        schedule=pd.DataFrame()
-        feed = gtfs_realtime_pb2.FeedMessage()
-        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])[0:100]
-        for f in files:
-            try:
-                response=urllib.request.urlopen('file:///'+path+d+'/'+f)
-                feed.ParseFromString(response.read())
-                for entity in feed.entity:
-                    if entity.HasField('trip_update'):
-                        try:
-                            # realtime
-                            rt=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
-                            rt['stopid']=[entity.trip_update.stop_time_update[0].stop_id]
-                            rt['time']=[entity.trip_update.stop_time_update[0].arrival.time]
-                            rt['routeid']=[entity.trip_update.trip.route_id]
-                            rt['tripid']=[entity.trip_update.trip.trip_id]
-                            rt=rt.dropna()
-                            realtime=realtime.append(rt,ignore_index=True)
-                            # schedule
-                            sc=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
-                            sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
-                            sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update[1:]]
-                            sc['routeid']=entity.trip_update.trip.route_id
-                            sc['tripid']=entity.trip_update.trip.trip_id
-                            sc=sc.dropna()
-                            sc=sc.sort_values(['routeid','tripid','time']).reset_index(drop=True)
-                            sc=calduration(sc)
-                            schedule=schedule.append(sc,ignore_index=True)
-                        except:
-                            print(str(f)+' entity error')
-                response.close()
-            except:
-                print(str(f)+' response error')
-        rttp=realtime.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
-        rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
-        rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
-        sctp=schedule.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
-        sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
-        tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
-        tp=tp.dropna()
-        tp['delay']=tp.duration-tp.schedule
-        tp['delaypct']=tp.duration/tp.schedule
-        tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
-        tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
-        tp=tp[['routeid','tripid','starthour','startstopid','stop_name_x','starttime',
-               'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
-        tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
-                    'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-        tp.to_csv(path+'Output/'+d+'_'+t+'1.csv',index=False)
+def cleangtfsrt(fs):
+    for f in fs:
+        try:
+            response=urllib.request.urlopen('file:///'+path+d+'/'+f)
+            feed.ParseFromString(response.read())
+            for entity in feed.entity:
+                if entity.HasField('trip_update'):
+                    try:
+                        # realtime
+                        rt=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
+                        rt['stopid']=[entity.trip_update.stop_time_update[0].stop_id]
+                        rt['time']=[entity.trip_update.stop_time_update[0].arrival.time]
+                        rt['routeid']=[entity.trip_update.trip.route_id]
+                        rt['tripid']=[entity.trip_update.trip.trip_id]
+                        rt=rt.dropna()
+                        rt.to_csv(path+'Output/rttp.csv',index=False,header=False,mode='a')
+                        # schedule
+                        sc=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
+                        sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
+                        sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update[1:]]
+                        sc['routeid']=entity.trip_update.trip.route_id
+                        sc['tripid']=entity.trip_update.trip.trip_id
+                        sc=sc.dropna()
+                        sc=sc.sort_values(['routeid','tripid','time']).reset_index(drop=True)
+                        sc=calduration(sc)
+                        sc.to_csv(path+'Output/sctp.csv',index=False,header=False,mode='a')
+                    except:
+                        print(str(f)+' entity error')
+            response.close()
+        except:
+            print(str(f)+' response error')
 
 
 
@@ -100,28 +79,49 @@ def parallelize(data, func):
 if __name__=='__main__':
     dates=['20190501']
     routes=['7','ace','bdfm','g','j','L','nqrw']
-    for d in dates:
-        parallelize(routes, cleangtfsrt)
-        print(datetime.datetime.now()-start)
-
-
-# 02:41.5
-
-
-
-
-
-
-#tp=tp[tp.starthour.isin(['06','07','08','09'])]
-#tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
-#             'schedule':['min','median','mean','max','count'],'delaypct':['min','median','mean','max','count']})
-#
-#tp=tp.groupby(['routeid','starthour','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','max','count'],
-#             'schedule':['min','median','max']})
-#tp.columns=[x[0]+x[1] for x in tp.columns]
-#
-#
-#
+#    for d in dates:
+#        for r in routes:
+#            rttp=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
+#            rttp.to_csv(path+'Output/rttp.csv',index=False,header=True,mode='w')
+#            sctp=pd.DataFrame(columns=['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration'])
+#            sctp.to_csv(path+'Output/sctp.csv',index=False,header=True,mode='w')
+#            feed = gtfs_realtime_pb2.FeedMessage()
+#            files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+r+'_'+d)])
+#            parallelize(files, cleangtfsrt)
+#            rttp=pd.read_csv(path+'Output/rttp.csv',dtype=str)
+#            rttp['time']=pd.to_numeric(rttp['time'])
+#            rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
+#            rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
+#            rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
+#            sctp=pd.read_csv(path+'Output/sctp.csv',dtype=str)
+#            sctp['duration']=pd.to_numeric(sctp['duration'])
+#            sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
+#            sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
+#            tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
+#            tp=tp.dropna()
+#            tp['delay']=tp.duration-tp.schedule
+#            tp['delaypct']=tp.duration/tp.schedule
+#            tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
+#            tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
+#            tp=tp[['routeid','tripid','starthour','startstopid','stop_name_x','starttime',
+#                   'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
+#            tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
+#                        'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
+#            tp.to_csv(path+'Output/'+d+'_'+r+'.csv',index=False,header=True,mode='w')
+#    print(datetime.datetime.now()-start)
+    tp=pd.DataFrame()
+    for i in os.listdir(path+'Output/'):
+        tp=tp.append(pd.read_csv(path+'Output/'+str(i),dtype=str))
+    tp['duration']=pd.to_numeric(tp['duration'])
+    tp['schedule']=pd.to_numeric(tp['schedule'])
+    tp['delay']=pd.to_numeric(tp['delay'])
+    tp['delaypct']=pd.to_numeric(tp['delaypct'])
+    tp=tp[tp.starthour.isin(['06','07','08','09'])]
+    tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
+                 'schedule':['min','median','mean','max','count'],'delaypct':['min','median','mean','max','count']})
+    tp.columns=[x[0]+x[1] for x in tp.columns]
+    tp=tp.groupby(['starthour'],as_index=False).agg({'delaypct':['min','median','mean','max','count']})
+    tp.columns=[x[0]+x[1] for x in tp.columns]
 
 
 
