@@ -4,6 +4,7 @@ import os
 import urllib
 import pandas as pd
 import datetime
+import time
 import numpy as np
 
 
@@ -22,8 +23,8 @@ def calduration(df):
     df['endstopid']=np.roll(df['stopid'],-1)
     df['endtime']=np.roll(df['time'],-1)
     df['duration']=df['endtime']-df['starttime']
-    df['starttime']=[datetime.datetime.fromtimestamp(x).strftime("%Y-%m-%d %H:%M:%S") for x in df['starttime']]
-    df['endtime']=[datetime.datetime.fromtimestamp(x).strftime("%Y-%m-%d %H:%M:%S") for x in df['endtime']]
+    df['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['starttime']]
+    df['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['endtime']]
     df['starthour']=[x[11:13] for x in df['starttime']]
     df=df[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
     df=df.iloc[:-1,:]
@@ -36,7 +37,7 @@ def cleangtfsrt(r):
         realtime=pd.DataFrame()
         schedule=pd.DataFrame()
         feed = gtfs_realtime_pb2.FeedMessage()
-        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])
+        files=sorted([x for x in os.listdir(path+d+'/') if x.startswith('gtfs_'+t+'_'+d)])[0:100]
         for f in files:
             try:
                 response=urllib.request.urlopen('file:///'+path+d+'/'+f)
@@ -82,7 +83,7 @@ def cleangtfsrt(r):
                'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
         tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                     'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-        tp.to_csv(path+'Output/'+d+'_'+t+'.csv',index=False)
+        tp.to_csv(path+'Output/'+d+'_'+t+'1.csv',index=False)
 
 
 
