@@ -66,7 +66,6 @@ def cleangtfsrt(fs):
 
 
 
-
 def parallelize(data, func):
     data_split = np.array_split(data,mp.cpu_count()-1)
     pool = mp.Pool(mp.cpu_count()-1)
