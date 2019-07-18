@@ -109,7 +109,7 @@ if __name__=='__main__':
             tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                         'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
             tp.to_csv(path+'Output/'+d+'_'+r+'2.csv',index=False,header=True,mode='w')            
-            print(datetime.datetime.now()-start)
+    print(datetime.datetime.now()-start)
 
 
 
