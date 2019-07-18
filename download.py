@@ -20,6 +20,7 @@ path='/home/mayijun/GTFS-RT/'
 #zip_ref.close()
 
 for i in os.listdir(path+'201905/'):
-    zip_ref=zipfile.ZipFile(path+'201905/'+str(i),'r')
-    zip_ref.extractall(path+'201905/'+str(i.replace('.zip','')))
-    zip_ref.close()
+    if i.endswith('.zip'):
+        zip_ref=zipfile.ZipFile(path+'201905/'+str(i),'r')
+        zip_ref.extractall(path+'201905/'+str(i.replace('.zip','')))
+        zip_ref.close()
