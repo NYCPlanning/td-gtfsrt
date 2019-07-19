@@ -35,6 +35,7 @@ def calduration(df):
 def cleangtfsrt(fs):
     for f in fs:
         try:
+            feed=gtfs_realtime_pb2.FeedMessage()
             response=urllib.request.urlopen('file:///'+path+str(m)+'/'+str(d)+'/'+str(f))
             feed.ParseFromString(response.read())
             for entity in feed.entity:
