@@ -77,11 +77,9 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=['201905']
-    dates=['20190501','20190502','20190503','20190504','20190505','20190506','20190507','20190508','20190509','20190510',
-           '20190511','20190512','20190513','20190514','20190515','20190516','20190517','20190518','20190519','20190520',
-           '20190521','20190522','20190523','20190524','20190525','20190526','20190527','20190528']
+    months=[x for x in os.listdir(path) if x not in ['Output','Schedule']]
     for m in months:
+        dates=os.listdir(path+m+'/')
         for d in dates:
             routes=pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')])
             for r in routes:
