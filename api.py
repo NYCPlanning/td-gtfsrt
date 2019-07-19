@@ -2,12 +2,11 @@ from google.transit import gtfs_realtime_pb2
 import multiprocessing as mp
 import os
 import pandas as pd
-import datetime
 import time
 import numpy as np
 import requests
 
-start=datetime.datetime.now()
+start=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
@@ -98,6 +97,8 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
+    endtime=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime('2019-07-19 17:10:00'))
+    while time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())<)
     rttp=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
     rttp.to_csv(path+'Output/rttp.csv',index=False,header=True,mode='w')
     sctp=pd.DataFrame(columns=['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration'])
