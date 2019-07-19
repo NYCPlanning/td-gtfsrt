@@ -77,11 +77,11 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=[x for x in os.listdir(path) if x not in ['Output','Schedule']]
+    months=sorted([x for x in os.listdir(path) if x not in ['Output','Schedule']])
     for m in months:
-        dates=os.listdir(path+m+'/')
+        dates=sorted(os.listdir(path+m+'/'))
         for d in dates:
-            routes=pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')])
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
             for r in routes:
                 rttp=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
                 rttp.to_csv(path+'Output/rttp.csv',index=False,header=True,mode='w')
