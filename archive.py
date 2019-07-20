@@ -73,7 +73,6 @@ def parallelize(data, func):
     pool.map(func, data_split)
     pool.close()
     pool.join()
-    return data
 
 
 
