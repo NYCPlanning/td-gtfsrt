@@ -85,11 +85,11 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=sorted([x for x in os.listdir(path) if x not in ['Output','Schedule']])[0:1]
+    months=sorted([x for x in os.listdir(path) if x not in ['Output','Schedule']])
     for m in months:
-        dates=sorted(os.listdir(path+m+'/'))[0:1]
+        dates=sorted(os.listdir(path+m+'/'))
         for d in dates:
-            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))[0:1]
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
             for r in routes:
                 files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
                 rttp,sctp=parallelize(files, cleangtfsrt)
