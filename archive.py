@@ -125,4 +125,4 @@ if __name__=='__main__':
     #    tp.columns=[x[0]+x[1] for x in tp.columns]
 
 
-#1:30 total
+#10:00
