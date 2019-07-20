@@ -128,4 +128,4 @@ if __name__=='__main__':
 
 
 # 16.5 mins for 7 train 20190501
-
+# 1.5 hours for one day
