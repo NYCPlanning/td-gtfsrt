@@ -86,7 +86,7 @@ if __name__=='__main__':
     for m in months:
         dates=sorted(os.listdir(path+m+'/'))
         for d in dates:
-            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))[1]
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
             for r in routes:
                 files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
                 rttp,sctp=parallelize(files, cleangtfsrt)
