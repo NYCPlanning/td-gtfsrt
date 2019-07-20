@@ -11,8 +11,8 @@ import numpy as np
 
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
-#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
@@ -33,6 +33,8 @@ def calduration(df):
 
 
 def cleangtfsrt(fs):
+    m='201905'
+    d='20190528'
     for f in fs:
         try:
             feed=gtfs_realtime_pb2.FeedMessage()
@@ -81,7 +83,7 @@ if __name__=='__main__':
     for m in months:
         dates=sorted(os.listdir(path+m+'/'))
         for d in dates:
-            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))[1]
             for r in routes:
                 rttp=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
                 rttp.to_csv(path+'Output/rttp.csv',index=False,header=True,mode='w')
@@ -108,7 +110,7 @@ if __name__=='__main__':
                        'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
                 tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                             'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-                tp.to_csv(path+'Output/'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
+                tp.to_csv(path+'Output/'+str(d)+'_'+str(r)+'3.csv',index=False,header=True,mode='w')
         print(datetime.datetime.now()-start)
     #    tp=pd.DataFrame()
     #    for i in os.listdir(path+'Output/'):

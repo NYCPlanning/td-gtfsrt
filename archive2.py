@@ -82,23 +82,23 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=sorted([x for x in os.listdir(path) if x not in ['Output','Schedule']])
+    months=sorted([x for x in os.listdir(path) if x not in ['Output','Schedule']])[0]
     for m in months:
-        dates=sorted(os.listdir(path+m+'/'))
+        dates=sorted(os.listdir(path+m+'/'))[0]
         for d in dates:
-            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))[0]
             for r in routes:
                 files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
                 rttp,sctp=parallelize(files, cleangtfsrt)
-                rttp=pd.read_csv(path+'Output/rttp.csv',dtype=str)
                 rttp['time']=pd.to_numeric(rttp['time'])
                 rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
                 rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
                 rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
-                sctp=pd.read_csv(path+'Output/sctp.csv',dtype=str)
+                rttp.to_csv(path+'Output/rttp2.csv',index=False,header=True,mode='w')
                 sctp['duration']=pd.to_numeric(sctp['duration'])
                 sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
                 sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
+                sctp.to_csv(path+'Output/sctp2.csv',index=False,header=True,mode='w')
                 tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
                 tp=tp.dropna()
                 tp['delay']=tp.duration-tp.schedule
