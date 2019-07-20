@@ -93,15 +93,15 @@ if __name__=='__main__':
             for r in routes:
                 files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
                 rttp,sctp=parallelize(files, cleangtfsrt)
+                rttp.to_csv(path+'Output/rttp3.csv',index=False,header=True,mode='w')
+                sctp.to_csv(path+'Output/sctp3.csv',index=False,header=True,mode='w')
                 rttp['time']=pd.to_numeric(rttp['time'])
                 rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
                 rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
                 rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
-                rttp.to_csv(path+'Output/rttp3.csv',index=False,header=True,mode='w')
                 sctp['duration']=pd.to_numeric(sctp['duration'])
                 sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
                 sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
-                sctp.to_csv(path+'Output/sctp3.csv',index=False,header=True,mode='w')
                 tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
                 tp=tp.dropna()
                 tp['delay']=tp.duration-tp.schedule
@@ -129,4 +129,5 @@ if __name__=='__main__':
     #    tp.columns=[x[0]+x[1] for x in tp.columns]
 
 
+# 16.5 mins for 7 train 20190501
 

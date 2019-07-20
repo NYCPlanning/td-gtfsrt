@@ -125,4 +125,4 @@ if __name__=='__main__':
     #    tp.columns=[x[0]+x[1] for x in tp.columns]
 
 
-#10:00
+# 17 mins for 7 train 20190501
