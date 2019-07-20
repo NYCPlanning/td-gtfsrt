@@ -50,7 +50,7 @@ def cleangtfsrt(fs):
                         rt['routeid']=[entity.trip_update.trip.route_id]
                         rt['tripid']=[entity.trip_update.trip.trip_id]
                         rt=rt.dropna()
-                        realtime=realtime+[rt]
+                        realtime.append(rt)
                         # schedule
                         sc=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
                         sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
@@ -60,7 +60,7 @@ def cleangtfsrt(fs):
                         sc=sc.dropna()
                         sc=sc.sort_values(['routeid','tripid','time']).reset_index(drop=True)
                         sc=calduration(sc)
-                        schedule=schedule+[sc]
+                        schedule.append(sc)
                     except:
                         print(str(f)+' entity error')
             response.close()
