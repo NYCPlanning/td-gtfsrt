@@ -11,8 +11,8 @@ import numpy as np
 
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
-#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
@@ -33,6 +33,8 @@ def calduration(df):
 
 
 def cleangtfsrt(fs):
+    realtime=pd.DataFrame()
+    schedule=pd.DataFrame()
     for f in fs:
         try:
             feed=gtfs_realtime_pb2.FeedMessage()
@@ -48,7 +50,7 @@ def cleangtfsrt(fs):
                         rt['routeid']=[entity.trip_update.trip.route_id]
                         rt['tripid']=[entity.trip_update.trip.trip_id]
                         rt=rt.dropna()
-                        rt.to_csv(path+'Output/rttp.csv',index=False,header=False,mode='a')
+                        realtime=realtime.append(rt)
                         # schedule
                         sc=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
                         sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
@@ -58,23 +60,25 @@ def cleangtfsrt(fs):
                         sc=sc.dropna()
                         sc=sc.sort_values(['routeid','tripid','time']).reset_index(drop=True)
                         sc=calduration(sc)
-                        sc.to_csv(path+'Output/sctp.csv',index=False,header=False,mode='a')
+                        schedule=schedule.append(sc)
                     except:
                         print(str(f)+' entity error')
             response.close()
         except:
             print(str(f)+' response error')
+    return realtime,schedule
 
 
 
 def parallelize(data, func):
     data_split = np.array_split(data,mp.cpu_count()-1)
     pool = mp.Pool(mp.cpu_count()-1)
-    pool.map(func, data_split)
+    res=pool.map(func, data_split)
+    a=pd.concat([x[0] for x in res],axis=0)
+    b=pd.concat([x[1] for x in res],axis=0)
     pool.close()
     pool.join()
-    return data
-
+    return a,b
 
 
 if __name__=='__main__':
@@ -82,14 +86,10 @@ if __name__=='__main__':
     for m in months:
         dates=sorted(os.listdir(path+m+'/'))
         for d in dates:
-            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))[1]
             for r in routes:
-                rttp=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
-                rttp.to_csv(path+'Output/rttp.csv',index=False,header=True,mode='w')
-                sctp=pd.DataFrame(columns=['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration'])
-                sctp.to_csv(path+'Output/sctp.csv',index=False,header=True,mode='w')
                 files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
-                parallelize(files, cleangtfsrt)
+                rttp,sctp=parallelize(files, cleangtfsrt)
                 rttp=pd.read_csv(path+'Output/rttp.csv',dtype=str)
                 rttp['time']=pd.to_numeric(rttp['time'])
                 rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
@@ -109,7 +109,7 @@ if __name__=='__main__':
                        'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
                 tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                             'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-                tp.to_csv(path+'Output/'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
+                tp.to_csv(path+'Output/'+str(d)+'_'+str(r)+'2.csv',index=False,header=True,mode='w')
         print(datetime.datetime.now()-start)
     #    tp=pd.DataFrame()
     #    for i in os.listdir(path+'Output/'):
@@ -126,4 +126,4 @@ if __name__=='__main__':
     #    tp.columns=[x[0]+x[1] for x in tp.columns]
 
 
-#1:30 total
+
