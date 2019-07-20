@@ -93,8 +93,6 @@ if __name__=='__main__':
             for r in routes:
                 files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
                 rttp,sctp=parallelize(files, cleangtfsrt)
-                rttp.to_csv(path+'Output/rttp3.csv',index=False,header=True,mode='w')
-                sctp.to_csv(path+'Output/sctp3.csv',index=False,header=True,mode='w')
                 rttp['time']=pd.to_numeric(rttp['time'])
                 rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
                 rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
@@ -112,7 +110,7 @@ if __name__=='__main__':
                        'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
                 tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
                             'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-                tp.to_csv(path+'Output/'+str(d)+'_'+str(r)+'3.csv',index=False,header=True,mode='w')
+                tp.to_csv(path+'Output/'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
         print(datetime.datetime.now()-start)
     #    tp=pd.DataFrame()
     #    for i in os.listdir(path+'Output/'):
