@@ -29,8 +29,8 @@ def calduration(df):
 
 
 rttp=[]
-for i in [x for x in os.listdir(path+'201907/') if x.startswith('rttp')]:
-    rttp.append(pd.read_csv(path+'201907/'+i))
+for i in [x for x in os.listdir(path+'Output/API/') if x.startswith('rttp')]:
+    rttp.append(pd.read_csv(path+'Output/API/'+i))
 rttp=pd.concat(rttp,axis=0,ignore_index=True)
 rttp['time']=pd.to_numeric(rttp['time'])
 rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
@@ -38,8 +38,8 @@ rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
 rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
 
 sctp=[]
-for i in [x for x in os.listdir(path+'201907/') if x.startswith('sctp')]:
-    sctp.append(pd.read_csv(path+'201907/'+i))
+for i in [x for x in os.listdir(path+'Output/API/') if x.startswith('sctp')]:
+    sctp.append(pd.read_csv(path+'Output/API/'+i))
 sctp=pd.concat(sctp,axis=0,ignore_index=True)
 sctp['duration']=pd.to_numeric(sctp['duration'])
 sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})

@@ -85,13 +85,13 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=time.strptime('2019-07-20 22:45:00','%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime('2019-07-21 13:00:00','%Y-%m-%d %H:%M:%S')
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
         rttp.to_csv(path+'Output/API/'+'rttp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
-        sctp.to_csv(path+'Output/API/'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
+        sctp.to_csv(path+'Output/API/'+'sctp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
         time.sleep(0)
 
