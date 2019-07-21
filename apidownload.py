@@ -89,10 +89,9 @@ if __name__=='__main__':
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
-        rttp.to_csv(path+starttime[0:10].replace('-','')+'/'+'rttp_'+
-                    starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',index=False,header=True,mode='w')
-        sctp.to_csv(path+starttime[0:10].replace('-','')+'/'+'sctp_'+
-                    starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',index=False,header=True,mode='w')
-        print('Total: '+str(time.mktime(time.localtime())-time.mktime(time.strptime(starttime,'%Y-%m-%d %H:%M:%S')))+' Seconds')
+        rttp.to_csv(path+'Output/API/'+'rttp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
+                    index=False,header=True,mode='w')
+        sctp.to_csv(path+'Output/API/'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
+                    index=False,header=True,mode='w')
         time.sleep(0)
 
