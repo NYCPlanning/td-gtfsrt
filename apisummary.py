@@ -56,6 +56,8 @@ tp=tp[['routeid','tripid','starthour','startstopid','stop_name_x','starttime',
 tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
             'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
 
+
+
 tp=tp[tp.starthour.isin(['06','07','08','09'])]
 tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
              'schedule':['min','median','mean','max','count'],'delaypct':['min','median','mean','max','count']})
