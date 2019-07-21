@@ -38,7 +38,7 @@ def cleangtfsrt(fs):
     for f in fs:
         try:
             feed=gtfs_realtime_pb2.FeedMessage()
-            response=urllib.request.urlopen('file:///'+path+str(m)+'/'+str(d)+'/'+str(f))
+            response=urllib.request.urlopen('file:///'+path+'Archive/'+str(m)+'/'+str(d)+'/'+str(f))
             feed.ParseFromString(response.read())
             for entity in feed.entity:
                 if entity.HasField('trip_update'):
@@ -85,13 +85,13 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=sorted([x for x in os.listdir(path) if x not in ['Output','Schedule']])
+    months=sorted([x for x in os.listdir(path+'Archive/') if x not in ['Output','Schedule']])
     for m in months:
-        dates=sorted(os.listdir(path+m+'/'))
+        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))
         for d in dates:
-            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+str(m)+'/'+str(d)+'/')]))
+            routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Archive/'+str(m)+'/'+str(d)+'/')]))
             for r in routes:
-                files=sorted([x for x in os.listdir(path+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
+                files=sorted([x for x in os.listdir(path+'Archive/'+str(m)+'/'+str(d)+'/') if x.startswith('gtfs_'+str(r)+'_'+str(d))])
                 rttp,sctp=parallelize(files, cleangtfsrt)
                 rttp.to_csv(path+'Output/Archive/rttp_'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
                 sctp.to_csv(path+'Output/Archive/sctp_'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
