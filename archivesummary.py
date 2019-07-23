@@ -67,8 +67,16 @@ tp['delaypct']=pd.to_numeric(tp['delaypct'])
 tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
              'schedule':['min','median','mean','max','count'],'delay':['min','median','mean','max','count'],
              'delaypct':['min','median','mean','max','count']})
-
-
+tp.columns=[x[0]+x[1] for x in tp.columns]
+tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
+tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
+tp=tp[['routeid','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
+       'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
+       'durationmin','durationmedian','durationmean','durationmax','durationcount',
+       'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
+       'delaymin','delaymedian','delaymean','delaymax','delaycount',
+       'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']]
+tp.to_csv(path+'Output/Archive/tp.csv',index=False,header=True,mode='w')
 
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
