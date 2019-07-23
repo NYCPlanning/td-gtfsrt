@@ -59,7 +59,17 @@ for d in dates:
 tp=[]
 for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
     tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
-#tp=pd.concat(tp,axis=0,ignore_index=True)    
+tp=pd.concat(tp,axis=0,ignore_index=True)
+tp['duration']=pd.to_numeric(tp['duration'])
+tp['schedule']=pd.to_numeric(tp['schedule'])
+tp['delay']=pd.to_numeric(tp['delay'])
+tp['delaypct']=pd.to_numeric(tp['delaypct'])
+tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
+             'schedule':['min','median','mean','max','count'],'delay':['min','median','mean','max','count'],
+             'delaypct':['min','median','mean','max','count']})
+
+
+
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
 #tp=tp[['routeid','tripid','starthour','startstopid','stop_name_x','starttime',
