@@ -9,7 +9,8 @@ import numpy as np
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
+#path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
@@ -37,7 +38,15 @@ for d in dates:
         rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
+    
     rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
+    
+    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).describe(include=[np.number])
+    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'describe(percentiles=[0.1,0.5,0.9,0.95])'})
+    rttp.columns=[x[0]+x[1] for x in rttp.columns]
+    rttp['timediff']=rttp['timemax']-rttp['timemin']
+    
+    
     rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
     rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
     sctp=[]
