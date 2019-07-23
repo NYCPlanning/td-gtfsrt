@@ -8,10 +8,10 @@ import numpy as np
 
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
-#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
+path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 #path='/home/mayijun/GTFS-RT/'
-stops=pd.read_csv(path+'Schedule/stops.txt')
+stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 
 
 
@@ -76,6 +76,13 @@ tp=tp[['routeid','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
        'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
        'delaymin','delaymedian','delaymean','delaymax','delaycount',
        'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']]
+tp.columns=['routeid','startstopid','startstopname','startstoplat','startstoplong',
+            'endstopid','endstopname','endstoplat','endstoplong',
+            'durationmin','durationmedian','durationmean','durationmax','durationcount',
+            'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
+            'delaymin','delaymedian','delaymean','delaymax','delaycount',
+            'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']
+tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
 tp.to_csv(path+'Output/Archive/tp.csv',index=False,header=True,mode='w')
 
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
