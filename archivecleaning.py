@@ -12,6 +12,7 @@ import numpy as np
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
 
@@ -85,7 +86,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=sorted([x for x in os.listdir(path+'Archive/') if x not in ['Output','Schedule']])
+    months=sorted(os.listdir(path+'Archive/'))
     for m in months:
         dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))
         for d in dates:
