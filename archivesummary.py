@@ -38,15 +38,7 @@ for d in dates:
         rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
-    
     rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
-    
-    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).describe(include=[np.number])
-    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'describe(percentiles=[0.1,0.5,0.9,0.95])'})
-    rttp.columns=[x[0]+x[1] for x in rttp.columns]
-    rttp['timediff']=rttp['timemax']-rttp['timemin']
-    
-    
     rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
     rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
     sctp=[]
@@ -64,9 +56,9 @@ for d in dates:
 
 
 
-#tp=[]
-#for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
-#    tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
+tp=[]
+for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
+    tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
 #tp=pd.concat(tp,axis=0,ignore_index=True)    
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
