@@ -21,8 +21,8 @@ for m in months:
     zip_ref.extractall(path+str(m))
     zip_ref.close()
     
-    for i in sorted(os.listdir(path+'Archive/'+str(m))):
-        if i.endswith('.zip'):
-            zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
-            zip_ref.extractall(path+'Archive/'+str(m)+'/'+str(i.replace('.zip','')))
-            zip_ref.close()
+#    for i in sorted(os.listdir(path+'Archive/'+str(m))):
+#        if i.endswith('.zip'):
+#            zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
+#            zip_ref.extractall(path+'Archive/'+str(m)+'/'+str(i.replace('.zip','')))
+#            zip_ref.close()
