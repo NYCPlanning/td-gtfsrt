@@ -30,10 +30,10 @@ def calduration(df):
 
 
 
-dates=pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp')])
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp')]))
 for d in dates:
     rttp=[]
-    for i in [x for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp_'+str(d))]:
+    for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp_'+str(d))]):
         rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
@@ -41,7 +41,7 @@ for d in dates:
     rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
     rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
     sctp=[]
-    for i in [x for x in os.listdir(path+'Output/Archive/') if x.startswith('sctp_'+str(d))]:
+    for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('sctp_'+str(d))]):
         sctp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     sctp=pd.concat(sctp,axis=0,ignore_index=True)
     sctp['duration']=pd.to_numeric(sctp['duration'])
@@ -56,7 +56,7 @@ for d in dates:
 
 
 #tp=[]
-#for i in [x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]:
+#for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
 #    tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
 #tp=pd.concat(tp,axis=0,ignore_index=True)    
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
