@@ -7,7 +7,7 @@ import os
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 
-months=['201906']
+months=['201808','201809','201810','201811','201812','201901','201902','201903','201904']
 for m in months:
     url='https://s3.amazonaws.com/gtfsarchive/Data/'+str(m)+'.zip'
     with requests.get(url, stream=True) as r:
