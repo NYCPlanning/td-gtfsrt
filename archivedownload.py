@@ -10,7 +10,7 @@ path='/home/mayijun/GTFS-RT/'
 
 
 
-months=['201811','201812','201904']
+months=['201810','201811','201812']
 for m in months:
 #    url='https://s3.amazonaws.com/gtfsarchive/Data/'+str(m)+'.zip'
 #    with requests.get(url, stream=True) as r:
