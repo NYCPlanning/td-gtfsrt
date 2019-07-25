@@ -4,9 +4,9 @@ import os
 
 
 
-path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-#path='/home/mayijun/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/'
 
 
 
@@ -19,9 +19,9 @@ for m in months:
 #            for chunk in r.iter_content(chunk_size=100): 
 #                if chunk: # filter out keep-alive new chunks
 #                    f.write(chunk)
-    zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'.zip',mode='r')
-    zip_ref.extractall(path+'Archive/'+str(m))
-    zip_ref.close()
+#    zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'.zip',mode='r')
+#    zip_ref.extractall(path+'Archive/'+str(m))
+#    zip_ref.close()
     for i in sorted(os.listdir(path+'Archive/'+str(m))):
         if i.endswith('.zip'):
             zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
