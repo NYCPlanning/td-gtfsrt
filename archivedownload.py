@@ -11,7 +11,7 @@ path='/home/mayijun/GTFS-RT/'
 # Unzip in linux 7z x
 
 
-months=['201810']
+months=['201811','201812']
 for m in months:
     url='https://s3.amazonaws.com/gtfsarchive/Data/'+str(m)+'.zip'
     with requests.get(url, stream=True) as r:
@@ -23,8 +23,8 @@ for m in months:
 #    zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'.zip',mode='r')
 #    zip_ref.extractall(path+'Archive/'+str(m))
 #    zip_ref.close()
-    for i in sorted(os.listdir(path+'Archive/'+str(m))):
-        if i.endswith('.zip'):
-            zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
-            zip_ref.extractall(path+'Archive/'+str(m)+'/'+str(i.replace('.zip','')))
-            zip_ref.close()
+#    for i in sorted(os.listdir(path+'Archive/'+str(m))):
+#        if i.endswith('.zip'):
+#            zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
+#            zip_ref.extractall(path+'Archive/'+str(m)+'/'+str(i.replace('.zip','')))
+#            zip_ref.close()
