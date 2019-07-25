@@ -11,7 +11,7 @@ path='/home/mayijun/GTFS-RT/'
 
 
 months=['201810']
-#for m in months:
+for m in months:
 #    url='https://s3.amazonaws.com/gtfsarchive/Data/'+str(m)+'.zip'
 #    with requests.get(url, stream=True) as r:
 #        r.raise_for_status()
