@@ -31,7 +31,7 @@ def calduration(df):
 
 
 
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp_201906')]))
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp')]))
 for d in dates:
     rttp=[]
     for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp_'+str(d))]):
@@ -56,35 +56,35 @@ for d in dates:
 
 
 
-#tp=[]
-#for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
-#    tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
-#tp=pd.concat(tp,axis=0,ignore_index=True)
-#tp['duration']=pd.to_numeric(tp['duration'])
-#tp['schedule']=pd.to_numeric(tp['schedule'])
-#tp['delay']=pd.to_numeric(tp['delay'])
-#tp['delaypct']=pd.to_numeric(tp['delaypct'])
-#tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
-#             'schedule':['min','median','mean','max','count'],'delay':['min','median','mean','max','count'],
-#             'delaypct':['min','median','mean','max','count']})
-#tp.columns=[x[0]+x[1] for x in tp.columns]
-#tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
-#tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
-#tp=tp[['routeid','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
-#       'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
-#       'durationmin','durationmedian','durationmean','durationmax','durationcount',
-#       'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
-#       'delaymin','delaymedian','delaymean','delaymax','delaycount',
-#       'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']]
-#tp.columns=['routeid','startstopid','startstopname','startstoplat','startstoplong',
-#            'endstopid','endstopname','endstoplat','endstoplong',
-#            'durationmin','durationmedian','durationmean','durationmax','durationcount',
-#            'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
-#            'delaymin','delaymedian','delaymean','delaymax','delaycount',
-#            'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']
-#tp=tp[tp['durationcount']>10]
-#tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
-#tp.to_csv(path+'Output/Archive/tp.csv',index=False,header=True,mode='w')
+tp=[]
+for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
+    tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
+tp=pd.concat(tp,axis=0,ignore_index=True)
+tp['duration']=pd.to_numeric(tp['duration'])
+tp['schedule']=pd.to_numeric(tp['schedule'])
+tp['delay']=pd.to_numeric(tp['delay'])
+tp['delaypct']=pd.to_numeric(tp['delaypct'])
+tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
+             'schedule':['min','median','mean','max','count'],'delay':['min','median','mean','max','count'],
+             'delaypct':['min','median','mean','max','count']})
+tp.columns=[x[0]+x[1] for x in tp.columns]
+tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
+tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
+tp=tp[['routeid','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
+       'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
+       'durationmin','durationmedian','durationmean','durationmax','durationcount',
+       'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
+       'delaymin','delaymedian','delaymean','delaymax','delaycount',
+       'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']]
+tp.columns=['routeid','startstopid','startstopname','startstoplat','startstoplong',
+            'endstopid','endstopname','endstoplat','endstoplong',
+            'durationmin','durationmedian','durationmean','durationmax','durationcount',
+            'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
+            'delaymin','delaymedian','delaymean','delaymax','delaycount',
+            'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']
+tp=tp[tp['durationcount']>10]
+tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
+tp.to_csv(path+'Output/Archive/tp.csv',index=False,header=True,mode='w')
 
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
 #tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
