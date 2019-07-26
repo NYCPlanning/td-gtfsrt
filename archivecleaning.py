@@ -18,18 +18,18 @@ stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
 
-def calduration(df):
-    df['startstopid']=df['stopid']
-    df['starttime']=df['time']
-    df['endstopid']=np.roll(df['stopid'],-1)
-    df['endtime']=np.roll(df['time'],-1)
-    df['duration']=df['endtime']-df['starttime']
-    df['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['starttime']]
-    df['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['endtime']]
-    df['starthour']=[x[11:13] for x in df['starttime']]
-    df=df[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
-    df=df.iloc[:-1,:]
-    return df
+def calduration(dt):
+    dt['startstopid']=dt['stopid']
+    dt['starttime']=dt['time']
+    dt['endstopid']=np.roll(dt['stopid'],-1)
+    dt['endtime']=np.roll(dt['time'],-1)
+    dt['duration']=dt['endtime']-dt['starttime']
+    dt['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['starttime']]
+    dt['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['endtime']]
+    dt['starthour']=[x[11:13] for x in dt['starttime']]
+    dt=dt[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
+    dt=dt.iloc[:-1,:]
+    return dt
 
 
 
