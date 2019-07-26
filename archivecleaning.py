@@ -99,4 +99,4 @@ if __name__=='__main__':
         print(datetime.datetime.now()-start)
 
 
-# 20180818 bdfm error
+# 20180818 g error
