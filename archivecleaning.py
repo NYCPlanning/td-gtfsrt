@@ -98,3 +98,5 @@ if __name__=='__main__':
                 sctp.to_csv(path+'Output/Archive/sctp_'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
         print(datetime.datetime.now()-start)
 
+
+# 20180818 bdfm error
