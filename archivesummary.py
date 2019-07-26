@@ -3,7 +3,6 @@ import pandas as pd
 import datetime
 import time
 import numpy as np
-import matplotlib as mpl
 
 
 start=datetime.datetime.now()
@@ -16,7 +15,6 @@ routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
 routes=routes[['route_id','route_color']]
 routes.loc[routes['route_id'].isin(['FS','H']),'route_color']='6D6E71'
 routes.loc[routes['route_id'].isin(['SI']),'route_color']='2850AD'
-
 
 
 
@@ -36,7 +34,12 @@ def calduration(dt):
 
 
 def calwaittime(wt):
-    
+    wt['previoustime']=np.roll(wt['starttime'],1)
+    wt['starttime']=[time.mktime(time.strptime(x,'%Y-%m-%d %H:%M:%S')) for x in wt['starttime']]
+    wt['previoustime']=[time.mktime(time.strptime(x,'%Y-%m-%d %H:%M:%S')) for x in wt['previoustime']]
+    wt['waittime']=wt['starttime']-wt['previoustime']
+    wt=wt.iloc[1:,:]
+    return wt
 
 
 
@@ -73,8 +76,11 @@ tp['duration']=pd.to_numeric(tp['duration'])
 tp['schedule']=pd.to_numeric(tp['schedule'])
 tp['delay']=pd.to_numeric(tp['delay'])
 tp['delaypct']=pd.to_numeric(tp['delaypct'])
-
 tp['startweekday']=[time.strptime(x,'%Y-%m-%d %H:%M:%S').tm_wday for x in tp['starttime']]
+
+
+
+
 tp=tp[tp['startweekday'].isin([0,1,2,3,4])]
 tp=tp[tp['starthour'].isin(['06','07','08','09'])]
 tp=tp[['routeid','startstopid','endstopid','duration','schedule','delay','delaypct']]
