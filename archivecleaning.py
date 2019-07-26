@@ -14,7 +14,6 @@ pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
-stops=pd.read_csv(path+'Schedule/stops.txt')
 
 
 
@@ -86,9 +85,9 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=sorted(os.listdir(path+'Archive/'))[0:3]
+    months=sorted(os.listdir(path+'Archive/'))[0:1]
     for m in months:
-        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))
+        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))[16:18]
         for d in dates:
             routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Archive/'+str(m)+'/'+str(d)+'/')]))
             for r in routes:
