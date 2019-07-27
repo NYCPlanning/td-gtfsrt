@@ -10,24 +10,40 @@ path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 #path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt')
+routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
+routes=routes[['route_id','route_color']]
+routes.loc[routes['route_id'].isin(['FS','H']),'route_color']='6D6E71'
+routes.loc[routes['route_id'].isin(['SI']),'route_color']='2850AD'
 
 
 
-def calduration(df):
-    df['startstopid']=df['stopid']
-    df['starttime']=df['time']
-    df['endstopid']=np.roll(df['stopid'],-1)
-    df['endtime']=np.roll(df['time'],-1)
-    df['duration']=df['endtime']-df['starttime']
-    df['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['starttime']]
-    df['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['endtime']]
-    df['starthour']=[x[11:13] for x in df['starttime']]
-    df=df[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
-    df=df.iloc[:-1,:]
-    return df
+def calduration(dt):
+    dt['startstopid']=dt['stopid']
+    dt['starttime']=dt['time']
+    dt['endstopid']=np.roll(dt['stopid'],-1)
+    dt['endtime']=np.roll(dt['time'],-1)
+    dt['duration']=dt['endtime']-dt['starttime']
+    dt['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['starttime']]
+    dt['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['endtime']]
+    dt['starthour']=[x[11:13] for x in dt['starttime']]
+    dt=dt[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
+    dt=dt.iloc[:-1,:]
+    return dt
 
 
 
+def calwaittime(wt):
+    wt=wt.sort_values(['starttime']).reset_index(drop=True)
+    wt['previoustime']=np.roll(wt['starttime'],1)
+    wt['starttime']=[time.mktime(time.strptime(x,'%Y-%m-%d %H:%M:%S')) for x in wt['starttime']]
+    wt['previoustime']=[time.mktime(time.strptime(x,'%Y-%m-%d %H:%M:%S')) for x in wt['previoustime']]
+    wt['waittime']=wt['starttime']-wt['previoustime']
+    wt=wt.iloc[1:,:]
+    return wt
+
+
+
+# Realtime
 rttp=[]
 for i in [x for x in os.listdir(path+'Output/API/') if x.startswith('rttp')]:
     rttp.append(pd.read_csv(path+'Output/API/'+str(i),dtype=str))
@@ -36,7 +52,7 @@ rttp['time']=pd.to_numeric(rttp['time'])
 rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
 rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
 rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
-
+# Schedule
 sctp=[]
 for i in [x for x in os.listdir(path+'Output/API/') if x.startswith('sctp')]:
     sctp.append(pd.read_csv(path+'Output/API/'+str(i),dtype=str))
@@ -44,7 +60,7 @@ sctp=pd.concat(sctp,axis=0,ignore_index=True)
 sctp['duration']=pd.to_numeric(sctp['duration'])
 sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
 sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
-
+# Combine
 tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
 tp=tp.dropna()
 tp['delay']=tp.duration-tp.schedule

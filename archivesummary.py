@@ -45,28 +45,31 @@ def calwaittime(wt):
 
 
 
-#dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp')]))
-#for d in dates:
-#    rttp=[]
-#    for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp_'+str(d))]):
-#        rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
-#    rttp=pd.concat(rttp,axis=0,ignore_index=True)
-#    rttp['time']=pd.to_numeric(rttp['time'])
-#    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
-#    rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
-#    rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
-#    sctp=[]
-#    for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('sctp_'+str(d))]):
-#        sctp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
-#    sctp=pd.concat(sctp,axis=0,ignore_index=True)
-#    sctp['duration']=pd.to_numeric(sctp['duration'])
-#    sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
-#    sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
-#    tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
-#    tp=tp.dropna()
-#    tp['delay']=tp.duration-tp.schedule
-#    tp['delaypct']=tp.duration/tp.schedule
-#    tp.to_csv(path+'Output/Archive/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp')]))
+for d in dates:
+    # Realtime
+    rttp=[]
+    for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('rttp_'+str(d))]):
+        rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
+    rttp=pd.concat(rttp,axis=0,ignore_index=True)
+    rttp['time']=pd.to_numeric(rttp['time'])
+    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
+    rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
+    rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
+    # Schedule
+    sctp=[]
+    for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('sctp_'+str(d))]):
+        sctp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
+    sctp=pd.concat(sctp,axis=0,ignore_index=True)
+    sctp['duration']=pd.to_numeric(sctp['duration'])
+    sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
+    sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
+    # Combine
+    tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
+    tp=tp.dropna()
+    tp['delay']=tp.duration-tp.schedule
+    tp['delaypct']=tp.duration/tp.schedule
+    tp.to_csv(path+'Output/Archive/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
 
 
 

@@ -43,7 +43,7 @@ def cleangtfsrt(fd):
             for entity in feed.entity:
                 if entity.HasField('trip_update'):
                     try:
-                        # realtime
+                        # Realtime
                         rt=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
                         rt['stopid']=[entity.trip_update.stop_time_update[0].stop_id]
                         rt['time']=[entity.trip_update.stop_time_update[0].arrival.time]
@@ -51,7 +51,7 @@ def cleangtfsrt(fd):
                         rt['tripid']=[entity.trip_update.trip.trip_id]
                         rt=rt.dropna()
                         realtime.append(rt)
-                        # schedule
+                        # Schedule
                         sc=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
                         sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
                         sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update[1:]]
