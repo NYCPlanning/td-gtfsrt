@@ -17,18 +17,18 @@ fds=['11','2','36','31','51','26','16','21','1']
 
 
 
-def calduration(df):
-    df['startstopid']=df['stopid']
-    df['starttime']=df['time']
-    df['endstopid']=np.roll(df['stopid'],-1)
-    df['endtime']=np.roll(df['time'],-1)
-    df['duration']=df['endtime']-df['starttime']
-    df['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['starttime']]
-    df['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in df['endtime']]
-    df['starthour']=[x[11:13] for x in df['starttime']]
-    df=df[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
-    df=df.iloc[:-1,:]
-    return df
+def calduration(dt):
+    dt['startstopid']=dt['stopid']
+    dt['starttime']=dt['time']
+    dt['endstopid']=np.roll(dt['stopid'],-1)
+    dt['endtime']=np.roll(dt['time'],-1)
+    dt['duration']=dt['endtime']-dt['starttime']
+    dt['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['starttime']]
+    dt['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['endtime']]
+    dt['starthour']=[x[11:13] for x in dt['starttime']]
+    dt=dt[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
+    dt=dt.iloc[:-1,:]
+    return dt
 
 
 
@@ -66,8 +66,11 @@ def cleangtfsrt(fd):
             response.close()
         except:
             print(str(f)+' response error')
-    realtime=pd.concat(realtime,axis=0,ignore_index=True)
-    schedule=pd.concat(schedule,axis=0,ignore_index=True)
+    try:
+        realtime=pd.concat(realtime,axis=0,ignore_index=True)
+        schedule=pd.concat(schedule,axis=0,ignore_index=True)
+    except:
+        print(str(f)+' empty data')
     return realtime,schedule
 
 
@@ -85,7 +88,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=time.strptime('2019-07-21 13:00:00','%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime('2019-07-27 20:00:00','%Y-%m-%d %H:%M:%S')
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
