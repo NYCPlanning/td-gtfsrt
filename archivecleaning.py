@@ -88,7 +88,7 @@ def parallelize(data, func):
 if __name__=='__main__':
     months=sorted(os.listdir(path+'Archive/'))[0:1]
     for m in months:
-        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))[18:]
+        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))[17:]
         for d in dates:
             routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Archive/'+str(m)+'/'+str(d)+'/')]))
             for r in routes:
@@ -100,3 +100,4 @@ if __name__=='__main__':
 
 
 # 20180818 g error
+# 20180819 g error
