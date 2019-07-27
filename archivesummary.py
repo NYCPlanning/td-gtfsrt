@@ -5,6 +5,7 @@ import time
 import numpy as np
 
 
+
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
 path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
@@ -118,73 +119,6 @@ tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat',
             'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
 tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
 tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
-#             'schedule':['min','median','mean','max','count'],'delay':['min','median','mean','max','count'],
-#             'delaypct':['min','median','mean','max','count']})
-#tp.columns=[x[0]+x[1] for x in tp.columns]
-#tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
-#tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
-#tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
-#tp=tp[['routeid','route_color','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
-#       'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
-#       'durationmin','durationmedian','durationmean','durationmax','durationcount',
-#       'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
-#       'delaymin','delaymedian','delaymean','delaymax','delaycount',
-#       'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']]
-#tp.columns=['routeid','routecolorhex','startstopid','startstopname','startstoplat','startstoplong',
-#            'endstopid','endstopname','endstoplat','endstoplong',
-#            'durationmin','durationmedian','durationmean','durationmax','durationcount',
-#            'schedulemin','schedulemedian','schedulemean','schedulemax','schedulecount',
-#            'delaymin','delaymedian','delaymean','delaymax','delaycount',
-#            'delaypctmin','delaypctmedian','delaypctmean','delaypctmax','delaypctcount']
-#tp=tp[tp['durationcount']>10]
-#tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
-#tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
-
-
-
-#tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
-#tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
-#tp=tp[['routeid','tripid','starthour','startstopid','stop_name_x','starttime',
-#       'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
-#tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
-#            'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
-#tp=tp[tp.starthour.isin(['06','07','08','09'])]
-#tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
-#             'schedule':['min','median','mean','max','count'],'delaypct':['min','median','mean','max','count']})
-#tp.columns=[x[0]+x[1] for x in tp.columns]
-#tp=tp.groupby(['starthour'],as_index=False).agg({'delaypct':['min','median','mean','max','count']})
-#tp.columns=[x[0]+x[1] for x in tp.columns]
 
 
 
