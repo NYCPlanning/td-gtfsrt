@@ -9,7 +9,7 @@ pd.set_option('display.max_columns', None)
 path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 #path='/home/mayijun/GTFS-RT/'
-stops=pd.read_csv(path+'Schedule/stops.txt')
+stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
 routes=routes[['route_id','route_color']]
 routes.loc[routes['route_id'].isin(['FS','H']),'route_color']='6D6E71'
@@ -65,21 +65,52 @@ tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid
 tp=tp.dropna()
 tp['delay']=tp.duration-tp.schedule
 tp['delaypct']=tp.duration/tp.schedule
-tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='startstopid',right_on='stop_id')
-tp=pd.merge(tp,stops[['stop_id','stop_name']],how='left',left_on='endstopid',right_on='stop_id')
-tp=tp[['routeid','tripid','starthour','startstopid','stop_name_x','starttime',
-       'endstopid','stop_name_y','endtime','duration','schedule','delay','delaypct']]
-tp.columns=['routeid','tripid','starthour','startstopid','startstopname','starttime',
-            'endstopid','endstopname','endtime','duration','schedule','delay','delaypct']
+tp['startweekday']=[time.strptime(x,'%Y-%m-%d %H:%M:%S').tm_wday for x in tp['starttime']]
+tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).apply(calwaittime).reset_index(drop=True)
+#tp=tp[tp['startweekday'].isin([0,1,2,3,4])]
+#tp=tp[tp['starthour'].isin(['06','07','08','09'])]
+tp=tp[['routeid','startstopid','endstopid','waittime','duration','schedule','delay','delaypct']]
+tp=tp.groupby(['routeid','startstopid','endstopid']).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index()
+tp.columns=[(x[0]+x[1]).replace('%','') for x in tp.columns]
+tp['waittimeqcv']=(tp['waittime75']-tp['waittime25'])/tp['waittime50']
+tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
+tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
+tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
+tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
+tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
+tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
+tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
+tp=tp[['routeid','route_color','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
+       'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
+       'waittimecount','waittimemin','waittimemax','waittimemean','waittimestd',
+       'waittime10','waittime25','waittime50','waittime75','waittime90','waittimeqcv',
+       'durationcount','durationmin','durationmax','durationmean','durationstd',
+       'duration10','duration25','duration50','duration75','duration90','durationqcv',
+       'schedulecount','schedulemin','schedulemax','schedulemean','schedulestd',
+       'schedule10','schedule25','schedule50','schedule75','schedule90','scheduleqcv',
+       'delaycount','delaymin','delaymax','delaymean','delaystd',
+       'delay10','delay25','delay50','delay75','delay90','delayqcv',
+       'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
+       'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']]
+tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat','startstoplong',
+            'endstopid','endstopname','endstoplat','endstoplong',
+            'waittimecount','waittimemin','waittimemax','waittimemean','waittimestd',
+            'waittime10','waittime25','waittime50','waittime75','waittime90','waittimeqcv',
+            'durationcount','durationmin','durationmax','durationmean','durationstd',
+            'duration10','duration25','duration50','duration75','duration90','durationqcv',
+            'schedulecount','schedulemin','schedulemax','schedulemean','schedulestd',
+            'schedule10','schedule25','schedule50','schedule75','schedule90','scheduleqcv',
+            'delaycount','delaymin','delaymax','delaymean','delaystd',
+            'delay10','delay25','delay50','delay75','delay90','delayqcv',
+            'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
+            'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
+tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
+tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
 
 
 
-tp=tp[tp.starthour.isin(['06','07','08','09'])]
-tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).agg({'duration':['min','median','mean','max','count'],
-             'schedule':['min','median','mean','max','count'],'delaypct':['min','median','mean','max','count']})
-tp.columns=[x[0]+x[1] for x in tp.columns]
-tp=tp.groupby(['starthour'],as_index=False).agg({'delaypct':['min','median','mean','max','count']})
-tp.columns=[x[0]+x[1] for x in tp.columns]
+
+
 
 
 
