@@ -67,8 +67,11 @@ def cleangtfsrt(fs):
             response.close()
         except:
             print(str(f)+' response error')
-    realtime=pd.concat(realtime,axis=0,ignore_index=True)
-    schedule=pd.concat(schedule,axis=0,ignore_index=True)
+    try:
+        realtime=pd.concat(realtime,axis=0,ignore_index=True)
+        schedule=pd.concat(schedule,axis=0,ignore_index=True)
+    except:
+        print(str(f)+' empty data')
     return realtime,schedule
 
 
