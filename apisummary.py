@@ -105,7 +105,7 @@ tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat',
             'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
             'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
 tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
-tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
+tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
 
 
 
