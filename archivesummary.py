@@ -7,9 +7,9 @@ import numpy as np
 
 start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
-path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-#path='/home/mayijun/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
 routes=routes[['route_id','route_color']]
