@@ -9,7 +9,7 @@ import numpy as np
 
 
 
-start=datetime.datetime.now()
+starttime=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
@@ -99,5 +99,5 @@ if __name__=='__main__':
                 rttp,sctp=parallelize(files, cleangtfsrt)
                 rttp.to_csv(path+'Output/Archive/rttp_'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
                 sctp.to_csv(path+'Output/Archive/sctp_'+str(d)+'_'+str(r)+'.csv',index=False,header=True,mode='w')
-        print(datetime.datetime.now()-start)
+        print(datetime.datetime.now()-starttime)
 

@@ -1,12 +1,12 @@
 import os
 import pandas as pd
-import datetime
 import time
 import numpy as np
+import shapely
+import geopandas as gpd
 
 
 
-start=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
 path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
@@ -16,6 +16,13 @@ routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
 routes=routes[['route_id','route_color']]
 routes.loc[routes['route_id'].isin(['FS','H']),'route_color']='6D6E71'
 routes.loc[routes['route_id'].isin(['SI']),'route_color']='2850AD'
+shapes=pd.read_csv(path+'Schedule/shapes.txt',dtype=str)
+shapes['shape_pt_sequence']=pd.to_numeric(shapes['shape_pt_sequence'])
+sh=shapes[['shape_id','shape_pt_lat','shape_pt_lon','shape_pt_sequence']].reset_index(drop=True)
+sh['shape_pt_lat']=round(pd.to_numeric(sh['shape_pt_lat']),4)
+sh['shape_pt_lon']=round(pd.to_numeric(sh['shape_pt_lon']),4)
+trips=pd.read_csv(path+'Schedule/trips.txt',dtype=str)
+trips['shape_id']=[x.split('_')[-1] for x in trips['trip_id']]
 
 
 
@@ -93,6 +100,7 @@ tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
 tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
 tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
 tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
+tp=tp[tp['durationcount']>10]
 tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
@@ -120,9 +128,36 @@ tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat',
             'delay10','delay25','delay50','delay75','delay90','delayqcv',
             'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
             'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
-tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
+tp['startzip']=list(zip(round(pd.to_numeric(tp['startstoplong']),4),round(pd.to_numeric(tp['startstoplat']),4)))
+tp['endzip']=list(zip(round(pd.to_numeric(tp['endstoplong']),4),round(pd.to_numeric(tp['endstoplat']),4)))
+for i in tp.index:
+    if len(sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))])!=0:
+        start=sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))].reset_index(drop=True)
+    else:
+        start=sh[[x.split('..')[0]==tp.loc[i,'routeid'] for x in sh['shape_id']]].reset_index(drop=True)
+    start['zip']=list(zip(start['shape_pt_lon'],start['shape_pt_lat']))
+    start=start[start['zip']==tp.loc[i,'startzip']]
+    if len(sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))])!=0:
+        end=sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))].reset_index(drop=True)
+    else:
+        end=sh[[x.split('..')[0]==tp.loc[i,'routeid'] for x in sh['shape_id']]].reset_index(drop=True)
+    end['zip']=list(zip(end['shape_pt_lon'],end['shape_pt_lat']))
+    end=end[end['zip']==tp.loc[i,'endzip']]    
+    startend=pd.merge(start,end,how='inner',on='shape_id')
+    startend=startend[startend['shape_pt_sequence_y']>startend['shape_pt_sequence_x']].reset_index(drop=True)
+    if len(startend)>0:
+        startend=startend.loc[0,:]
+        startindex=shapes[(shapes['shape_id']==startend['shape_id'])&(shapes['shape_pt_sequence']==startend['shape_pt_sequence_x'])].index[0]
+        endindex=shapes[(shapes['shape_id']==startend['shape_id'])&(shapes['shape_pt_sequence']==startend['shape_pt_sequence_y'])].index[0]
+        geom=shapes.loc[startindex:endindex,:].reset_index()
+        geom='LINESTRING('+', '.join(geom['shape_pt_lon']+' '+geom['shape_pt_lat'])+')'
+        tp.loc[i,'geom']=geom
+    else:
+        tp.loc[i,'geom']=''
+tp=gpd.GeoDataFrame(tp,crs={'init': 'epsg:4326'},geometry=tp['geom'].map(shapely.wkt.loads))
+tp=tp.to_crs({'init': 'epsg:6539'})
+tp['dist']=tp.geometry.length
+tp.drop(['startzip','endzip'],axis=1)
+tp.to_file(path+'Output/Archive/ArchiveOutput.shp')
 tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
-
-
-
 
