@@ -153,11 +153,19 @@ for i in tp.index:
         geom='LINESTRING('+', '.join(geom['shape_pt_lon']+' '+geom['shape_pt_lat'])+')'
         tp.loc[i,'geom']=geom
     else:
-        tp.loc[i,'geom']=''
+        tp.loc[i,'geom']='LINESTRING(0 0, 0 0)'
 tp=gpd.GeoDataFrame(tp,crs={'init': 'epsg:4326'},geometry=tp['geom'].map(shapely.wkt.loads))
 tp=tp.to_crs({'init': 'epsg:6539'})
 tp['dist']=tp.geometry.length
-tp.drop(['startzip','endzip'],axis=1)
+tp['mphmin']=(tp['dist']/5280)/(tp['durationmax']/3600)
+tp['mphmax']=(tp['dist']/5280)/(tp['durationmin']/3600)
+tp['mphmean']=(tp['dist']/5280)/(tp['durationmean']/3600)
+tp['mph10']=(tp['dist']/5280)/(tp['duration90']/3600)
+tp['mph25']=(tp['dist']/5280)/(tp['duration75']/3600)
+tp['mph50']=(tp['dist']/5280)/(tp['duration50']/3600)
+tp['mph75']=(tp['dist']/5280)/(tp['duration25']/3600)
+tp['mph90']=(tp['dist']/5280)/(tp['duration10']/3600)
+tp=tp.drop(['startzip','endzip'],axis=1)
 tp.to_file(path+'Output/Archive/ArchiveOutput.shp')
 tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
 
