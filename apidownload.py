@@ -96,5 +96,5 @@ if __name__=='__main__':
                     index=False,header=True,mode='w')
         sctp.to_csv(path+'Output/API/'+'sctp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
-        time.sleep(0)
+        time.sleep(10)
 
