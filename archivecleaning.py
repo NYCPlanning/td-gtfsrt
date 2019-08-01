@@ -72,6 +72,8 @@ def cleangtfsrt(fs):
         schedule=pd.concat(schedule,axis=0,ignore_index=True)
     except:
         print(str(f)+' empty data')
+        realtime=pd.DataFrame()
+        schedule=pd.DataFrame()
     return realtime,schedule
 
 
@@ -80,13 +82,8 @@ def parallelize(data, func):
     data_split = np.array_split(data,mp.cpu_count()-1)
     pool = mp.Pool(mp.cpu_count()-1)
     res=pool.map(func, data_split)
-    try:
-        a=pd.concat([x[0] for x in res],axis=0,ignore_index=True)
-        b=pd.concat([x[1] for x in res],axis=0,ignore_index=True)
-    except:
-        print('Empty data')
-        a=pd.DataFrame()
-        b=pd.DataFrame()
+    a=pd.concat([x[0] for x in res],axis=0,ignore_index=True)
+    b=pd.concat([x[1] for x in res],axis=0,ignore_index=True)
     pool.close()
     pool.join()
     return a,b
@@ -96,7 +93,7 @@ def parallelize(data, func):
 if __name__=='__main__':
     months=sorted(os.listdir(path+'Archive/'))[0:1]
     for m in months:
-        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))[15:]
+        dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))
         for d in dates:
             routes=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Archive/'+str(m)+'/'+str(d)+'/')]))
             for r in routes:

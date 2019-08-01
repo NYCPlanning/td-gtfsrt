@@ -71,6 +71,8 @@ def cleangtfsrt(fd):
         schedule=pd.concat(schedule,axis=0,ignore_index=True)
     except:
         print(str(f)+' empty data')
+        realtime=pd.DataFrame()
+        schedule=pd.DataFrame()
     return realtime,schedule
 
 
@@ -79,13 +81,8 @@ def parallelize(data, func):
     data_split = np.array_split(data,mp.cpu_count()-1)
     pool = mp.Pool(mp.cpu_count()-1)
     res=pool.map(func, data_split)
-    try:
-        a=pd.concat([x[0] for x in res],axis=0,ignore_index=True)
-        b=pd.concat([x[1] for x in res],axis=0,ignore_index=True)
-    except:
-        print('Empty data')
-        a=pd.DataFrame()
-        b=pd.DataFrame()
+    a=pd.concat([x[0] for x in res],axis=0,ignore_index=True)
+    b=pd.concat([x[1] for x in res],axis=0,ignore_index=True)
     pool.close()
     pool.join()
     return a,b
