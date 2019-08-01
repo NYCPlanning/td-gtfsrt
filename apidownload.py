@@ -79,8 +79,13 @@ def parallelize(data, func):
     data_split = np.array_split(data,mp.cpu_count()-1)
     pool = mp.Pool(mp.cpu_count()-1)
     res=pool.map(func, data_split)
-    a=pd.concat([x[0] for x in res],axis=0,ignore_index=True)
-    b=pd.concat([x[1] for x in res],axis=0,ignore_index=True)
+    try:
+        a=pd.concat([x[0] for x in res],axis=0,ignore_index=True)
+        b=pd.concat([x[1] for x in res],axis=0,ignore_index=True)
+    except:
+        print('Empty data')
+        a=pd.DataFrame()
+        b=pd.DataFrame()
     pool.close()
     pool.join()
     return a,b
