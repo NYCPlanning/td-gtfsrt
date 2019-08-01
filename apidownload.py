@@ -9,10 +9,9 @@ import requests
 
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-#path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
+path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
-stops=pd.read_csv(path+'Schedule/stops.txt')
-key='9aea332316c4d6c5332aecc2a733033d'
+key=pd.read_csv(path+'apikey.csv').loc[0,'apikey']
 fds=['11','2','36','31','51','26','16','21','1']
 
 
