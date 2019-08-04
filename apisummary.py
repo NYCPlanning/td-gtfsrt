@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import time
 import numpy as np
-import shapely
+from shapely import wkt
 import geopandas as gpd
 
 
@@ -69,6 +69,12 @@ sctp=pd.concat(sctp,axis=0,ignore_index=True)
 sctp['duration']=pd.to_numeric(sctp['duration'])
 sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
 sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
+
+
+
+
+
+
 # Combine
 tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
 tp=tp.dropna()
@@ -140,7 +146,7 @@ for i in tp.index:
         tp.loc[i,'geom']=geom
     else:
         tp.loc[i,'geom']='LINESTRING(0 0, 0 0)'
-tp=gpd.GeoDataFrame(tp,crs={'init': 'epsg:4326'},geometry=tp['geom'].map(shapely.wkt.loads))
+tp=gpd.GeoDataFrame(tp,crs={'init': 'epsg:4326'},geometry=tp['geom'].map(wkt.loads))
 tp=tp.to_crs({'init': 'epsg:6539'})
 tp['dist']=tp.geometry.length
 tp['mphmin']=(tp['dist']/5280)/(tp['durationmax']/3600)
