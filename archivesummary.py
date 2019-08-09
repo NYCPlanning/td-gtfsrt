@@ -101,7 +101,7 @@ tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
 tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
 tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
 tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
-tp=tp[tp['durationcount']>10]
+tp=tp[tp['durationcount']>100]
 tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
@@ -129,19 +129,26 @@ tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat',
             'delay10','delay25','delay50','delay75','delay90','delayqcv',
             'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
             'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
+tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
+
+
+
+tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)
+for i in tp.columns[10:]:
+    tp[i]=pd.to_numeric(tp[i])
 tp['startzip']=list(zip(round(pd.to_numeric(tp['startstoplong']),4),round(pd.to_numeric(tp['startstoplat']),4)))
 tp['endzip']=list(zip(round(pd.to_numeric(tp['endstoplong']),4),round(pd.to_numeric(tp['endstoplat']),4)))
 for i in tp.index:
     if len(sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))])!=0:
         start=sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))].reset_index(drop=True)
     else:
-        start=sh[[x.split('..')[0]==tp.loc[i,'routeid'] for x in sh['shape_id']]].reset_index(drop=True)
+        start=sh[[x.split('.')[0]==tp.loc[i,'routeid'] for x in sh['shape_id']]].reset_index(drop=True)
     start['zip']=list(zip(start['shape_pt_lon'],start['shape_pt_lat']))
     start=start[start['zip']==tp.loc[i,'startzip']]
     if len(sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))])!=0:
         end=sh[sh['shape_id'].isin(pd.unique(trips[trips['route_id']==tp.loc[i,'routeid']]['shape_id']))].reset_index(drop=True)
     else:
-        end=sh[[x.split('..')[0]==tp.loc[i,'routeid'] for x in sh['shape_id']]].reset_index(drop=True)
+        end=sh[[x.split('.')[0]==tp.loc[i,'routeid'] for x in sh['shape_id']]].reset_index(drop=True)
     end['zip']=list(zip(end['shape_pt_lon'],end['shape_pt_lat']))
     end=end[end['zip']==tp.loc[i,'endzip']]    
     startend=pd.merge(start,end,how='inner',on='shape_id')
