@@ -91,7 +91,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    months=sorted(os.listdir(path+'Archive/'))[0:1]
+    months=sorted(os.listdir(path+'Archive/'))
     for m in months:
         dates=sorted(os.listdir(path+'Archive/'+str(m)+'/'))
         for d in dates:
