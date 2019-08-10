@@ -10,7 +10,7 @@ import geopandas as gpd
 pd.set_option('display.max_columns', None)
 path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+#path='/home/mayijun/GTFS-RT/'
 #path='E:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
@@ -33,10 +33,7 @@ def calduration(dt):
     dt['endstopid']=np.roll(dt['stopid'],-1)
     dt['endtime']=np.roll(dt['time'],-1)
     dt['duration']=dt['endtime']-dt['starttime']
-    dt['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['starttime']]
-    dt['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['endtime']]
-    dt['starthour']=[x[11:13] for x in dt['starttime']]
-    dt=dt[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
+    dt=dt[['startstopid','starttime','endstopid','endtime','duration']]
     dt=dt.iloc[:-1,:]
     return dt
 
@@ -61,9 +58,9 @@ for d in dates:
         rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
-    rttp=rttp.groupby(['routeid','tripid','stopid'],as_index=False).agg({'time':'median'})
+    rttp=rttp.groupby(['routeid','tripid','tripdate','stopid'],as_index=False).agg({'time':'max'})
     rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
-    rttp=rttp.groupby(['routeid','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
+    rttp=rttp.groupby(['routeid','tripid','tripdate'],as_index=False).apply(calduration).reset_index(drop=True)
     # Schedule
     sctp=[]
     for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('sctp_'+str(d))]):

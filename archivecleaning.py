@@ -4,7 +4,6 @@ import os
 import urllib
 import pandas as pd
 import datetime
-import time
 import numpy as np
 
 
@@ -15,8 +14,6 @@ path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 #path='/home/mayijun/GTFS-RT/'
 #path='E:/GTFS-RT/'
-stoptimes=pd.read_csv(path+'Schedule/stop_times.txt',dtype=str)
-stoptimes['newtripid']=[x.split('_')[0].split('-')[-2]+'_'+x.split('_')[-2]+'_'+x.split('_')[-1] for x in stoptimes['trip_id']]
 
 
 
@@ -44,31 +41,25 @@ def cleangtfsrt(fs):
                 if entity.HasField('trip_update'):
                     try:
                         # Realtime
-#                        rt=pd.DataFrame(columns=['routeid','tripid','tripdate','tripwday','tripday','newtripid','stopid','time'])
                         rt=pd.DataFrame(columns=['routeid','tripid','tripdate','stopid','time'])
                         rt['stopid']=[entity.trip_update.stop_time_update[0].stop_id]
                         rt['time']=[entity.trip_update.stop_time_update[0].arrival.time]
-                        rt['routeid']=[entity.trip_update.trip.route_id]
-                        rt['tripid']=[entity.trip_update.trip.trip_id]
-                        rt['tripdate']=[entity.trip_update.trip.start_date]
-#                        rt['tripwday']=[time.strptime(x,'%Y%m%d').tm_wday for x in rt['tripdate']]
-#                        rt['tripday']=np.where(np.isin(rt['tripwday'],[0,1,2,3,4]),'Weekday',np.where(np.isin(rt['tripwday'],[5]),'Saturday','Sunday'))
-#                        rt['newtripid']=rt['tripday']+'_'+rt['tripid']
+                        rt['routeid']=entity.trip_update.trip.route_id
+                        rt['tripid']=entity.trip_update.trip.trip_id
+                        rt['tripdate']=entity.trip_update.trip.start_date
                         rt=rt.dropna()
                         realtime.append(rt)
                         # Schedule
                         sc=pd.DataFrame(columns=['stopid','time'])
-                        sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
-                        sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update[1:]]
+                        sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update]
+                        sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update]
                         sc=sc.dropna()
                         sc=sc.sort_values('time').reset_index(drop=True)
                         sc=calduration(sc)                        
                         sc['routeid']=entity.trip_update.trip.route_id
                         sc['tripid']=entity.trip_update.trip.trip_id
                         sc['tripdate']=entity.trip_update.trip.start_date
-#                        sc['tripwday']=[time.strptime(x,'%Y%m%d').tm_wday for x in sc['tripdate']]
-#                        sc['tripday']=np.where(np.isin(sc['tripwday'],[0,1,2,3,4]),'Weekday',np.where(np.isin(sc['tripwday'],[5]),'Saturday','Sunday'))
-#                        sc['newtripid']=sc['tripday']+'_'+sc['tripid']
+                        sc=sc[['routeid','tripid','tripdate','startstopid','starttime','endstopid','endtime','duration']]
                         schedule.append(sc)
                     except:
                         print(str(f)+' entity error')
