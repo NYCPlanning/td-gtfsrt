@@ -133,7 +133,7 @@ tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='
 
 
 
-tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)[0:100]
+tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)
 for i in tp.columns[10:]:
     tp[i]=pd.to_numeric(tp[i])
 tp['startzip']=list(zip(round(pd.to_numeric(tp['startstoplong']),4),round(pd.to_numeric(tp['startstoplat']),4)))
