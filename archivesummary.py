@@ -8,8 +8,8 @@ import geopandas as gpd
 
 
 pd.set_option('display.max_columns', None)
-#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-#path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
+path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 #path='E:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
@@ -133,7 +133,7 @@ tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='
 
 
 
-tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)
+tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)[0:100]
 for i in tp.columns[10:]:
     tp[i]=pd.to_numeric(tp[i])
 tp['startzip']=list(zip(round(pd.to_numeric(tp['startstoplong']),4),round(pd.to_numeric(tp['startstoplat']),4)))
@@ -179,10 +179,7 @@ tp['mph25']=(tp['dist']/5280)/(tp['duration75']/3600)
 tp['mph50']=(tp['dist']/5280)/(tp['duration50']/3600)
 tp['mph75']=(tp['dist']/5280)/(tp['duration25']/3600)
 tp['mph90']=(tp['dist']/5280)/(tp['duration10']/3600)
-tp=tp.drop(['startzip','endzip','geom','geometry'],axis=1)
-tp['geom']='LINESTRING('+tp['startstoplong']+' '+tp['startstoplat']+', '+tp['endstoplong']+' '+tp['endstoplat']+')'
-tp=gpd.GeoDataFrame(tp,crs={'init': 'epsg:4326'},geometry=tp['geom'].map(wkt.loads))
+tp=tp.drop(['startzip','endzip','geom'],axis=1)
 tp.to_file(path+'Output/Archive/ArchiveOutput.shp')
-tp=tp.drop(['geom','geometry'],axis=1)
 tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
 
