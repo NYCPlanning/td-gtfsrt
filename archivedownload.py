@@ -4,13 +4,13 @@ import os
 
 
 
-#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+#path='/home/mayijun/GTFS-RT/'
 
 # Unzip in linux 7z x
 
-months=['201904']
+months=['201906']
 for m in months:
     url='https://s3.amazonaws.com/gtfsarchive/Data/'+str(m)+'.zip'
     with requests.get(url, stream=True) as r:

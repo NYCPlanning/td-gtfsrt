@@ -9,7 +9,7 @@ import geopandas as gpd
 
 pd.set_option('display.max_columns', None)
 path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
-path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
+#path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 #path='E:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
@@ -82,7 +82,7 @@ def calwaittime(wt):
 
 
 tp=[]
-for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
+for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')])[0:1]:
     tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
 tp=pd.concat(tp,axis=0,ignore_index=True)
 tp['duration']=pd.to_numeric(tp['duration'])
