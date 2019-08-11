@@ -10,7 +10,7 @@ path='/home/mayijun/GTFS-RT/'
 
 # Unzip in linux 7z x
 
-months=['201902']
+months=['201901']
 for m in months:
     url='https://s3.amazonaws.com/gtfsarchive/Data/'+str(m)+'.zip'
     with requests.get(url, stream=True) as r:
