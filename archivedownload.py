@@ -19,9 +19,9 @@ for m in months:
 #            for chunk in r.iter_content(chunk_size=100): 
 #                if chunk: # filter out keep-alive new chunks
 #                    f.write(chunk)
-    zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'.zip',mode='r')
-    zip_ref.extractall(path+'Archive/'+str(m))
-    zip_ref.close()
+#    zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'.zip',mode='r')
+#    zip_ref.extractall(path+'Archive/'+str(m))
+#    zip_ref.close()
     for i in sorted(os.listdir(path+'Archive/'+str(m))):
         if i.endswith('.zip'):
             zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
