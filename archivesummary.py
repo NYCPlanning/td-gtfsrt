@@ -78,7 +78,7 @@ for d in dates:
 
 
 #tp=[]
-#for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')])[0:1]:
+#for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
 #    tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
 #tp=pd.concat(tp,axis=0,ignore_index=True)
 #tp['duration']=pd.to_numeric(tp['duration'])
@@ -130,7 +130,7 @@ for d in dates:
 #
 #
 #
-#tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)[0:100]
+#tp=pd.read_csv(path+'Output/Archive/ArchiveOutput.csv',dtype=str)
 #for i in tp.columns[10:]:
 #    tp[i]=pd.to_numeric(tp[i])
 #tp['startzip']=list(zip(round(pd.to_numeric(tp['startstoplong']),4),round(pd.to_numeric(tp['startstoplat']),4)))
