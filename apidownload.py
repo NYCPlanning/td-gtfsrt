@@ -22,11 +22,8 @@ def calduration(dt):
     dt['endstopid']=np.roll(dt['stopid'],-1)
     dt['endtime']=np.roll(dt['time'],-1)
     dt['duration']=dt['endtime']-dt['starttime']
-    dt['starttime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['starttime']]
-    dt['endtime']=[time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(x)) for x in dt['endtime']]
-    dt['starthour']=[x[11:13] for x in dt['starttime']]
-    dt=dt[['routeid','tripid','starthour','startstopid','starttime','endstopid','endtime','duration']]
     dt=dt.iloc[:-1,:]
+    dt=dt.drop(['stopid','time'],axis=1)
     return dt
 
 
@@ -43,22 +40,25 @@ def cleangtfsrt(fd):
                 if entity.HasField('trip_update'):
                     try:
                         # Realtime
-                        rt=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
+                        rt=pd.DataFrame(columns=['routeid','tripdate','tripid','stopid','time'])
                         rt['stopid']=[entity.trip_update.stop_time_update[0].stop_id]
                         rt['time']=[entity.trip_update.stop_time_update[0].arrival.time]
-                        rt['routeid']=[entity.trip_update.trip.route_id]
-                        rt['tripid']=[entity.trip_update.trip.trip_id]
+                        rt['routeid']=entity.trip_update.trip.route_id
+                        rt['tripdate']=entity.trip_update.trip.start_date
+                        rt['tripid']=entity.trip_update.trip.trip_id
                         rt=rt.dropna()
                         realtime.append(rt)
                         # Schedule
-                        sc=pd.DataFrame(columns=['routeid','tripid','stopid','time'])
-                        sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update[1:]]
-                        sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update[1:]]
-                        sc['routeid']=entity.trip_update.trip.route_id
-                        sc['tripid']=entity.trip_update.trip.trip_id
+                        sc=pd.DataFrame(columns=['stopid','time'])
+                        sc['stopid']=[x.stop_id for x in entity.trip_update.stop_time_update]
+                        sc['time']=[x.arrival.time for x in entity.trip_update.stop_time_update]
                         sc=sc.dropna()
-                        sc=sc.sort_values(['routeid','tripid','time']).reset_index(drop=True)
-                        sc=calduration(sc)
+                        sc=sc.sort_values('time').reset_index(drop=True)
+                        sc=calduration(sc)                        
+                        sc['routeid']=entity.trip_update.trip.route_id
+                        sc['tripdate']=entity.trip_update.trip.start_date
+                        sc['tripid']=entity.trip_update.trip.trip_id
+                        sc=sc[['routeid','tripdate','tripid','startstopid','endstopid','duration']]
                         schedule.append(sc)
                     except:
                         print(str(f)+' entity error')
@@ -89,7 +89,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=time.strptime('2019-08-09 23:10:00','%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime('2019-08-10 21:00:00','%Y-%m-%d %H:%M:%S')
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
