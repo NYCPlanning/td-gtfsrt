@@ -27,3 +27,4 @@ for m in months:
             zip_ref=zipfile.ZipFile(path+'Archive/'+str(m)+'/'+str(i),'r')
             zip_ref.extractall(path+'Archive/'+str(m)+'/'+str(i.replace('.zip','')))
             zip_ref.close()
+
