@@ -33,8 +33,8 @@ def calduration(dt):
     dt['endstopid']=np.roll(dt['stopid'],-1)
     dt['endtime']=np.roll(dt['time'],-1)
     dt['duration']=dt['endtime']-dt['starttime']
-    dt=dt[['startstopid','starttime','endstopid','endtime','duration']]
     dt=dt.iloc[:-1,:]
+    dt=dt.drop(['stopid','time'],axis=1)
     return dt
 
 
@@ -42,10 +42,9 @@ def calduration(dt):
 def calwaittime(wt):
     wt=wt.sort_values(['starttime']).reset_index(drop=True)
     wt['previoustime']=np.roll(wt['starttime'],1)
-    wt['starttime']=[time.mktime(time.strptime(x,'%Y-%m-%d %H:%M:%S')) for x in wt['starttime']]
-    wt['previoustime']=[time.mktime(time.strptime(x,'%Y-%m-%d %H:%M:%S')) for x in wt['previoustime']]
     wt['waittime']=wt['starttime']-wt['previoustime']
     wt=wt.iloc[1:,:]
+    wt=wt.drop(['previoustime'],axis=1)
     return wt
 
 
@@ -58,19 +57,19 @@ for d in dates:
         rttp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
-    rttp=rttp.groupby(['routeid','tripid','tripdate','stopid'],as_index=False).agg({'time':'max'})
-    rttp=rttp.sort_values(['routeid','tripid','time']).reset_index(drop=True)
-    rttp=rttp.groupby(['routeid','tripid','tripdate'],as_index=False).apply(calduration).reset_index(drop=True)
+    rttp=rttp.groupby(['routeid','tripdate','tripid','stopid'],as_index=False).agg({'time':'max'})
+    rttp=rttp.sort_values(['routeid','tripdate','tripid','time']).reset_index(drop=True)
+    rttp=rttp.groupby(['routeid','tripdate','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
     # Schedule
     sctp=[]
     for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('sctp_'+str(d))]):
         sctp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
     sctp=pd.concat(sctp,axis=0,ignore_index=True)
     sctp['duration']=pd.to_numeric(sctp['duration'])
-    sctp=sctp.groupby(['routeid','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
-    sctp.columns=['routeid','tripid','startstopid','endstopid','schedule']
+    sctp=sctp.groupby(['routeid','tripdate','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})
+    sctp.columns=['routeid','tripdate','tripid','startstopid','endstopid','schedule']
     # Combine
-    tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripid','startstopid','endstopid'])
+    tp=pd.merge(rttp,sctp,how='left',on=['routeid','tripdate','tripid','startstopid','endstopid'])
     tp=tp.dropna()
     tp['delay']=tp.duration-tp.schedule
     tp['delaypct']=tp.duration/tp.schedule
@@ -86,8 +85,11 @@ tp['duration']=pd.to_numeric(tp['duration'])
 tp['schedule']=pd.to_numeric(tp['schedule'])
 tp['delay']=pd.to_numeric(tp['delay'])
 tp['delaypct']=pd.to_numeric(tp['delaypct'])
-tp['startweekday']=[time.strptime(x,'%Y-%m-%d %H:%M:%S').tm_wday for x in tp['starttime']]
 tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).apply(calwaittime).reset_index(drop=True)
+
+tp['starthour']=
+tp['startweekday']=[time.strptime(x,'%Y-%m-%d %H:%M:%S').tm_wday for x in tp['starttime']]
+
 tp=tp[tp['startweekday'].isin([0,1,2,3,4])]
 tp=tp[tp['starthour'].isin(['06','07','08','09'])]
 tp=tp[['routeid','startstopid','endstopid','waittime','duration','schedule','delay','delaypct']]

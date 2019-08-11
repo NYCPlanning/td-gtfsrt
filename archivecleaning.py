@@ -23,8 +23,8 @@ def calduration(dt):
     dt['endstopid']=np.roll(dt['stopid'],-1)
     dt['endtime']=np.roll(dt['time'],-1)
     dt['duration']=dt['endtime']-dt['starttime']
-    dt=dt[['startstopid','starttime','endstopid','endtime','duration']]
     dt=dt.iloc[:-1,:]
+    dt=dt.drop(['stopid','time'],axis=1)
     return dt
 
 
@@ -41,12 +41,12 @@ def cleangtfsrt(fs):
                 if entity.HasField('trip_update'):
                     try:
                         # Realtime
-                        rt=pd.DataFrame(columns=['routeid','tripid','tripdate','stopid','time'])
+                        rt=pd.DataFrame(columns=['routeid','tripdate','tripid','stopid','time'])
                         rt['stopid']=[entity.trip_update.stop_time_update[0].stop_id]
                         rt['time']=[entity.trip_update.stop_time_update[0].arrival.time]
                         rt['routeid']=entity.trip_update.trip.route_id
-                        rt['tripid']=entity.trip_update.trip.trip_id
                         rt['tripdate']=entity.trip_update.trip.start_date
+                        rt['tripid']=entity.trip_update.trip.trip_id
                         rt=rt.dropna()
                         realtime.append(rt)
                         # Schedule
@@ -57,9 +57,9 @@ def cleangtfsrt(fs):
                         sc=sc.sort_values('time').reset_index(drop=True)
                         sc=calduration(sc)                        
                         sc['routeid']=entity.trip_update.trip.route_id
-                        sc['tripid']=entity.trip_update.trip.trip_id
                         sc['tripdate']=entity.trip_update.trip.start_date
-                        sc=sc[['routeid','tripid','tripdate','startstopid','starttime','endstopid','endtime','duration']]
+                        sc['tripid']=entity.trip_update.trip.trip_id
+                        sc=sc[['routeid','tripdate','tripid','startstopid','endstopid','duration']]
                         schedule.append(sc)
                     except:
                         print(str(f)+' entity error')
