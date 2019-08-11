@@ -86,12 +86,10 @@ tp['schedule']=pd.to_numeric(tp['schedule'])
 tp['delay']=pd.to_numeric(tp['delay'])
 tp['delaypct']=pd.to_numeric(tp['delaypct'])
 tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).apply(calwaittime).reset_index(drop=True)
-
-tp['starthour']=
-tp['startweekday']=[time.strptime(x,'%Y-%m-%d %H:%M:%S').tm_wday for x in tp['starttime']]
-
+tp['starthour']=[time.localtime(x).tm_hour for x in tp['starttime']]
+tp['startweekday']=[time.localtime(x).tm_wday for x in tp['starttime']]
 tp=tp[tp['startweekday'].isin([0,1,2,3,4])]
-tp=tp[tp['starthour'].isin(['06','07','08','09'])]
+tp=tp[tp['starthour'].isin([6,7,8,9])]
 tp=tp[['routeid','startstopid','endstopid','waittime','duration','schedule','delay','delaypct']]
 tp=tp.groupby(['routeid','startstopid','endstopid']).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index()
 tp.columns=[(x[0]+x[1]).replace('%','') for x in tp.columns]
