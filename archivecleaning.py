@@ -10,9 +10,9 @@ import numpy as np
 
 starttime=datetime.datetime.now()
 pd.set_option('display.max_columns', None)
-path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-#path='/home/mayijun/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/'
 #path='E:/GTFS-RT/'
 
 
