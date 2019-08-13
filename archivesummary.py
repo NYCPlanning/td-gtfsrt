@@ -81,6 +81,8 @@ tp=[]
 for i in sorted([x for x in os.listdir(path+'Output/Archive/') if x.startswith('tp')]):
     tp.append(pd.read_csv(path+'Output/Archive/'+str(i),dtype=str))
 tp=pd.concat(tp,axis=0,ignore_index=True)
+tp['starttime']=pd.to_numeric(tp['starttime'])
+tp['endtime']=pd.to_numeric(tp['endtime'])
 tp['duration']=pd.to_numeric(tp['duration'])
 tp['schedule']=pd.to_numeric(tp['schedule'])
 tp['delay']=pd.to_numeric(tp['delay'])
