@@ -8,9 +8,9 @@ import geopandas as gpd
 
 
 pd.set_option('display.max_columns', None)
-path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-#path='/home/mayijun/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/'
 #path='E:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
@@ -100,7 +100,7 @@ tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
 tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
 tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
 tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
-tp=tp[tp['durationcount']>100]
+tp=tp[tp['durationcount']>1000]
 tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
@@ -181,10 +181,4 @@ tp['mph90']=(tp['dist']/5280)/(tp['duration10']/3600)
 tp=tp.drop(['startzip','endzip','geom'],axis=1)
 tp.to_file(path+'Output/API/APIOutput.shp')
 tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
-
-
-
-
-
-
 
