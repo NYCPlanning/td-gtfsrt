@@ -8,9 +8,9 @@ import requests
 
 
 pd.set_option('display.max_columns', None)
-path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
+#path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-#path='/home/mayijun/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/'
 key=pd.read_csv(path+'apikey.csv').loc[0,'apikey']
 fds=['11','2','36','31','51','26','16','21','1']
 
@@ -89,7 +89,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=time.strptime('2019-08-10 21:00:00','%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime('2019-08-26 23:00:00','%Y-%m-%d %H:%M:%S')
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
