@@ -182,3 +182,17 @@ tp=tp.drop(['startzip','endzip','geom'],axis=1)
 tp.to_file(path+'Output/API/APIOutput.shp')
 tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
 
+
+
+tp=gpd.read_file(path+'Output/API/ArchiveOutput.shp')
+tp['geom']=''
+for i in tp.index:
+    try:
+        tp.loc[i,'geom']=tp.loc[i,'geometry'].parallel_offset(distance=200,side='right')
+    except:
+        tp.loc[i,'geom']=tp.loc[i,'geometry']
+tp=gpd.GeoDataFrame(tp,geometry=tp['geom'],crs={'init': 'epsg:6539'})
+tp=tp.drop('geom',axis=1)
+tp.to_file(path+'Output/API/ArchiveOutput2.shp')
+
+
