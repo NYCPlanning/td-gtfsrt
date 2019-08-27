@@ -11,7 +11,7 @@ pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
-#path='E:GTFS-RT/'
+path='E:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
 routes=routes[['route_id','route_color']]
@@ -181,4 +181,18 @@ tp['mph90']=(tp['dist']/5280)/(tp['duration10']/3600)
 tp=tp.drop(['startzip','endzip','geom'],axis=1)
 tp.to_file(path+'Output/Archive/ArchiveOutput.shp')
 tp.to_csv(path+'Output/Archive/ArchiveOutput.csv',index=False,header=True,mode='w')
+
+
+
+tp=gpd.read_file(path+'Output/Archive/ArchiveOutput.shp')
+tp['geom']=''
+for i in tp.index:
+    try:
+        tp.loc[i,'geom']=tp.loc[i,'geometry'].parallel_offset(distance=200,side='right')
+    except:
+        tp.loc[i,'geom']=tp.loc[i,'geometry']
+tp=gpd.GeoDataFrame(tp,geometry=tp['geom'],crs={'init': 'epsg:6539'})
+tp=tp.drop('geom',axis=1)
+tp.to_file(path+'Output/Archive/ArchiveOutput2.shp')
+
 
