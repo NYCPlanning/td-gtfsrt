@@ -100,7 +100,7 @@ tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
 tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
 tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
 tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
-tp=tp[tp['durationcount']>20]
+tp=tp[tp['durationcount']>1000]
 tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
