@@ -49,12 +49,12 @@ def calwaittime(wt):
 
 
 
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Output/API/') if x.startswith('rttp')]))
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))
 for d in dates:
     # Realtime
     rttp=[]
-    for i in sorted([x for x in os.listdir(path+'Output/API/') if x.startswith('rttp_'+str(d))]):
-        rttp.append(pd.read_csv(path+'Output/API/'+str(i),dtype=str))
+    for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('rttp_'+str(d))]):
+        rttp.append(pd.read_csv(path+'Raw/API/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
     rttp=rttp.groupby(['routeid','tripdate','tripid','stopid'],as_index=False).agg({'time':'max'})
@@ -62,8 +62,8 @@ for d in dates:
     rttp=rttp.groupby(['routeid','tripdate','tripid'],as_index=False).apply(calduration).reset_index(drop=True)
     # Schedule
     sctp=[]
-    for i in sorted([x for x in os.listdir(path+'Output/API/') if x.startswith('sctp_'+str(d))]):
-        sctp.append(pd.read_csv(path+'Output/API/'+str(i),dtype=str))
+    for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('sctp_'+str(d))]):
+        sctp.append(pd.read_csv(path+'Raw/API/'+str(i),dtype=str))
     sctp=pd.concat(sctp,axis=0,ignore_index=True)
     sctp['duration']=pd.to_numeric(sctp['duration'])
     sctp=sctp.groupby(['routeid','tripdate','tripid','startstopid','endstopid'],as_index=False).agg({'duration':'median'})

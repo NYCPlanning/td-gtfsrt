@@ -93,9 +93,9 @@ if __name__=='__main__':
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
-        rttp.to_csv(path+'Output/API/'+'rttp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
+        rttp.to_csv(path+'Raw/API/'+'rttp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
-        sctp.to_csv(path+'Output/API/'+'sctp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
+        sctp.to_csv(path+'Raw/API/'+'sctp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
         time.sleep(0)
 
