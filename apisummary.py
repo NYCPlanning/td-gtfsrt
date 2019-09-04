@@ -12,6 +12,7 @@ pd.set_option('display.max_columns', None)
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
 #path='E:GTFS-RT/'
+#path='D:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
 routes=pd.read_csv(path+'Schedule/routes.txt',dtype=str)
 routes=routes[['route_id','route_color']]
@@ -49,6 +50,7 @@ def calwaittime(wt):
 
 
 
+# Summarize data by date
 dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))
 for d in dates:
     # Realtime
@@ -77,9 +79,17 @@ for d in dates:
 
 
 
+## Remove data except the last date
+#dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))[:-1]
+#for d in dates:
+#    for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('rttp_'+str(d))]):
+#        os.remove(path+'Raw/API/'+str(i))
+#    for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('sctp_'+str(d))]):
+#        os.remove(path+'Raw/API/'+str(i))
 
 
 
+## Summarize all the data and calculate AM peak metrics
 #tp=[]
 #for i in sorted([x for x in os.listdir(path+'Output/API/') if x.startswith('tp')]):
 #    tp.append(pd.read_csv(path+'Output/API/'+str(i),dtype=str))
@@ -135,6 +145,7 @@ for d in dates:
 #
 #
 #
+## Create shapes and calculate speeds
 #tp=pd.read_csv(path+'Output/API/APIOutput.csv',dtype=str)
 #for i in tp.columns[10:]:
 #    tp[i]=pd.to_numeric(tp[i])
@@ -187,6 +198,7 @@ for d in dates:
 #
 #
 #
+## Offset the shapes (todo: express/local trains)
 #tp=gpd.read_file(path+'Output/API/APIOutput.shp')
 #tp['geom']=''
 #for i in tp.index:
