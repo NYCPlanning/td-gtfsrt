@@ -105,8 +105,8 @@ tp['delaypct']=pd.to_numeric(tp['delaypct'])
 tp=tp.groupby(['routeid','startstopid','endstopid'],as_index=False).apply(calwaittime).reset_index(drop=True)
 tp['starthour']=[time.localtime(x).tm_hour for x in tp['starttime']]
 tp['startweekday']=[time.localtime(x).tm_wday for x in tp['starttime']]
-#tp=tp[tp['startweekday'].isin([0,1,2,3,4])]
-#tp=tp[tp['starthour'].isin([6,7,8,9])]
+tp=tp[tp['startweekday'].isin([0,1,2,3,4])]
+tp=tp[tp['starthour'].isin([6,7,8,9])]
 tp=tp[['routeid','startstopid','endstopid','waittime','duration','schedule','delay','delaypct']]
 tp=tp.groupby(['routeid','startstopid','endstopid']).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index()
 tp.columns=[(x[0]+x[1]).replace('%','') for x in tp.columns]
@@ -115,7 +115,7 @@ tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
 tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
 tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
 tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
-#tp=tp[tp['durationcount']>1000]
+tp=tp[tp['durationcount']>10]
 tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
 tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
