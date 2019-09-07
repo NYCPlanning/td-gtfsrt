@@ -56,6 +56,7 @@ for d in dates:
     # Realtime
     rttp=[]
     for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('rttp_'+str(d))]):
+        print(str(i))
         rttp.append(pd.read_csv(path+'Raw/API/'+str(i),dtype=str))
     rttp=pd.concat(rttp,axis=0,ignore_index=True)
     rttp['time']=pd.to_numeric(rttp['time'])
