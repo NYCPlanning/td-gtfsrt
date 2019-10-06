@@ -89,7 +89,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=time.strptime('2019-09-30 23:00:00','%Y-%m-%d %H:%M:%S')
+    endtime=time.strptime('2019-12-31 23:00:00','%Y-%m-%d %H:%M:%S')
     while time.localtime()<endtime:
         starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
         rttp,sctp=parallelize(fds, cleangtfsrt)
