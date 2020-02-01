@@ -1,9 +1,11 @@
 from google.transit import gtfs_realtime_pb2
 import multiprocessing as mp
 import pandas as pd
-import time
 import numpy as np
 import requests
+import datetime
+import pytz
+import time
 
 
 
@@ -89,13 +91,12 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=time.strptime('2020-03-31 23:00:00','%Y-%m-%d %H:%M:%S')
-    while time.localtime()<endtime:
-        starttime=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
+    endtime=datetime.datetime(2020,3,31,23,0,0,0,pytz.timezone('US/Eastern'))
+    while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
+        starttime=datetime.datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M:%S')
         rttp,sctp=parallelize(fds, cleangtfsrt)
         rttp.to_csv(path+'Raw/API/'+'rttp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
         sctp.to_csv(path+'Raw/API/'+'sctp_'+starttime.replace('-','').replace(':','').replace(' ','_')+'.csv',
                     index=False,header=True,mode='w')
         time.sleep(5)
-
