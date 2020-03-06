@@ -91,7 +91,7 @@ def parallelize(data, func):
 
 
 if __name__=='__main__':
-    endtime=datetime.datetime(2020,3,31,23,0,0,0,pytz.timezone('US/Eastern'))
+    endtime=datetime.datetime(2020,12,31,23,0,0,0,pytz.timezone('US/Eastern'))
     while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
         starttime=datetime.datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M:%S')
         rttp,sctp=parallelize(fds, cleangtfsrt)
