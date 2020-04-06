@@ -13,9 +13,10 @@ pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
 path='/home/mayijun/GTFS-RT/'
-key=pd.read_csv(path+'apikey.csv').loc[0,'apikey']
-#key=pd.read_csv(path+'apikey2.csv').loc[0,'apikey']
-fds=['11','2','36','31','51','26','16','21','1']
+#key=pd.read_csv(path+'apikey.csv').loc[0,'apikey']
+key=pd.read_csv(path+'apikey2.csv').loc[0,'apikey']
+#fds=['11','2','36','31','51','26','16','21','1']
+fds=['-ace','-bdfm','-g','-jz','-nqrw','-l','','-7','-si']
 
 
 
@@ -37,7 +38,8 @@ def cleangtfsrt(fd):
     for f in fd:
         try:
             feed=gtfs_realtime_pb2.FeedMessage()
-            response = requests.get('http://datamine.mta.info/mta_esi.php?key='+str(key)+'&feed_id='+str(f))
+#            response = requests.get('http://datamine.mta.info/mta_esi.php?key='+str(key)+'&feed_id='+str(f))
+            response = requests.get('https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs'+str(f),headers={'x-api-key':key})
             feed.ParseFromString(response.content)
             for entity in feed.entity:
                 if entity.HasField('trip_update'):
