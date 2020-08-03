@@ -51,7 +51,7 @@ def calwaittime(wt):
 
 
 # Summarize data by date
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))[2:]
 for d in dates:
     # Realtime
     rttp=[]
@@ -81,13 +81,13 @@ for d in dates:
 
 
 
-# Remove data except the last date
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))[:-1]
-for d in dates:
-    for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('rttp_'+str(d))]):
-        os.remove(path+'Raw/API/'+str(i))
-    for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('sctp_'+str(d))]):
-        os.remove(path+'Raw/API/'+str(i))
+# # Remove data except the last date
+# dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))[:-1]
+# for d in dates:
+#     for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('rttp_'+str(d))]):
+#         os.remove(path+'Raw/API/'+str(i))
+#     for i in sorted([x for x in os.listdir(path+'Raw/API/') if x.startswith('sctp_'+str(d))]):
+#         os.remove(path+'Raw/API/'+str(i))
 
 
 
