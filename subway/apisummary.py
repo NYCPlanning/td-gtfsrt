@@ -10,7 +10,7 @@ import geopandas as gpd
 pd.set_option('display.max_columns', None)
 #path='C:/Users/Yijun Ma/Desktop/D/DOCUMENT/DCP2019/GTFS-RT/'
 #path='C:/Users/Y_Ma2/Desktop/GTFS-RT/'
-path='/home/mayijun/GTFS-RT/'
+path='/home/mayijun/GTFS-RT/Subway/'
 #path='E:GTFS-RT/'
 #path='D:GTFS-RT/'
 stops=pd.read_csv(path+'Schedule/stops.txt',dtype=str)
