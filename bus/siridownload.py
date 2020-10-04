@@ -17,7 +17,7 @@ url='http://bustime.mta.info/api/siri/vehicle-monitoring.json?key='+pd.read_csv(
 endtime=datetime.datetime(2020,12,31,23,0,0,0,pytz.timezone('US/Eastern'))
 while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
     tp=pd.DataFrame(requests.get(url).json()).loc['ServiceDelivery','Siri']
-    ts=datetime.datetime.strptime(tp['ResponseTimestamp'].split('.')[0],'%Y-%m-%dT%H:%M:%S').strftime('%Y%m%d%_H%M%S')
+    ts=datetime.datetime.strptime(tp['ResponseTimestamp'].split('.')[0],'%Y-%m-%dT%H:%M:%S').strftime('%Y%m%d_%H%M%S')
     tp=tp['VehicleMonitoringDelivery'][0]['VehicleActivity']
     veh=pd.DataFrame()
     veh['veh']=''
@@ -56,7 +56,7 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
                 print(tp[j]['MonitoredVehicleJourney']['VehicleRef']+' no progress')
         except:
             print(tp[j]['MonitoredVehicleJourney']['VehicleRef']+' error')
-    veh.to_csv(path+'SIRI/Raw/rttp'+ts+'.csv',index=False)
+    veh.to_csv(path+'SIRI/Raw/rttp_'+ts+'.csv',index=False)
     time.sleep(60)
 
 
