@@ -57,7 +57,7 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
         except:
             print(tp[j]['MonitoredVehicleJourney']['VehicleRef']+' error')
     veh.to_csv(path+'SIRI/Raw/rttp_'+ts+'.csv',index=False)
-    time.sleep(30)
+    time.sleep(60)
 
 
 
