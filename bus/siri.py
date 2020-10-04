@@ -12,6 +12,7 @@ from shapely import wkt
 path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
 url='http://bustime.mta.info/api/siri/vehicle-monitoring.json?key='+pd.read_csv(path+'KEY.csv',dtype=str).loc[0,'key']
 
+url='http://bustime.mta.info/api/siri/stop-monitoring.json?OperatorRef=MTA&MonitoringRef=308209&LineRef=MTA%20NYCT_B63&key='+pd.read_csv(path+'KEY.csv',dtype=str).loc[0,'key']
 
 
 for i in range(0,10):
