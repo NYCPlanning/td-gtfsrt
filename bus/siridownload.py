@@ -8,8 +8,8 @@ import pytz
 
 
 pd.set_option('display.max_columns', None)
-# path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
-path='/home/mayijun/GTFS-RT/Bus/'
+path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
+# path='/home/mayijun/GTFS-RT/Bus/'
 url='http://bustime.mta.info/api/siri/vehicle-monitoring.json?key='+pd.read_csv(path+'KEY.csv',dtype=str).loc[0,'key']
 
 
@@ -36,7 +36,7 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
     veh['cap']=np.nan
     for j in range(0,len(tp)):
         try:
-            if tp[j]['MonitoredVehicleJourney']['ProgressRate']=='normalProgress':
+            if np.isin(tp[j]['MonitoredVehicleJourney']['ProgressRate'],['normalProgress','noProgress']):
                 veh.loc[j,'veh']=tp[j]['MonitoredVehicleJourney']['VehicleRef']
                 veh.loc[j,'time']=datetime.datetime.strptime(tp[j]['RecordedAtTime'].split('.')[0],'%Y-%m-%dT%H:%M:%S').strftime('%m%d%H%M%S')
                 veh.loc[j,'epoch']=pytz.timezone('US/Eastern').localize(datetime.datetime.strptime(tp[j]['RecordedAtTime'].split('.')[0],'%Y-%m-%dT%H:%M:%S')).timestamp()
