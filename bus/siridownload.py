@@ -8,8 +8,8 @@ import pytz
 
 
 pd.set_option('display.max_columns', None)
-path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
-# path='/home/mayijun/GTFS-RT/Bus/'
+# path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
+path='/home/mayijun/GTFS-RT/Bus/'
 url='http://bustime.mta.info/api/siri/vehicle-monitoring.json?key='+pd.read_csv(path+'KEY.csv',dtype=str).loc[0,'key']
 
 
