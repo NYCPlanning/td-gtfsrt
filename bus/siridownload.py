@@ -23,7 +23,6 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
     veh['veh']=''
     veh['time']=''
     veh['epoch']=np.nan
-    veh['eptm']=''
     veh['lat']=np.nan
     veh['long']=np.nan
     veh['line']=''
@@ -41,7 +40,6 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
                 veh.loc[j,'veh']=tp[j]['MonitoredVehicleJourney']['VehicleRef']
                 veh.loc[j,'time']=datetime.datetime.strptime(tp[j]['RecordedAtTime'].split('.')[0],'%Y-%m-%dT%H:%M:%S').strftime('%m%d%H%M%S')
                 veh.loc[j,'epoch']=pytz.timezone('US/Eastern').localize(datetime.datetime.strptime(tp[j]['RecordedAtTime'].split('.')[0],'%Y-%m-%dT%H:%M:%S')).timestamp()
-                veh.loc[j,'eptm']=datetime.datetime.fromtimestamp(veh.loc[j,'epoch'],tz=pytz.timezone('US/Eastern')).strftime('%m%d%H%M%S')
                 veh.loc[j,'lat']=tp[j]['MonitoredVehicleJourney']['VehicleLocation']['Latitude']
                 veh.loc[j,'long']=tp[j]['MonitoredVehicleJourney']['VehicleLocation']['Longitude']
                 veh.loc[j,'line']=tp[j]['MonitoredVehicleJourney']['PublishedLineName']
