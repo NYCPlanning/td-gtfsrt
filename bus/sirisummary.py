@@ -15,6 +15,13 @@ path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
 # path='/home/mayijun/GTFS-RT/Bus/'
 
 
+# Schedule
+
+
+
+
+
+
 
 # dt=rttp[0:5].reset_index(drop=True)
 def calc(dt):
@@ -87,16 +94,17 @@ tp['dist']=pd.to_numeric(tp['dist'])
 tp['mph']=pd.to_numeric(tp['mph'])
 tp['pax']=pd.to_numeric(tp['pax'])
 tp['cap']=pd.to_numeric(tp['cap'])
-tp['wkd1']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).weekday() for x in tp['epoch1']]
-tp['hour1']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).hour for x in tp['epoch1']]
-tp=tp[tp['wkd1'].isin([0,1,2,3,4])]
-tp=tp[tp['hour1'].isin([6,7,8,9])]
+tp['wkd']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).weekday() for x in tp['epoch1']]
+tp['hour']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).hour for x in tp['epoch1']]
+tp=tp[np.isin(tp['wkd'],[0,1,2,3,4])].reset_index(drop=True)
+tp=tp[np.isin(tp['hour'],[6,7,8,9])].reset_index(drop=True)
+tp=tp[['line','dir','dest','stpid1','stpid2','dur','dist','mph','pax','cap']].reset_index(drop=True)
 
 
+k=tp.groupby(['line','dir','dest','stpid1','stpid2'],as_index=True).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index(drop=False)
+k.columns=[(x[0]+x[1]).replace('%','') for x in k.columns]
 
-tp=tp[['routeid','startstopid','endstopid','waittime','duration','schedule','delay','delaypct']]
-tp=tp.groupby(['routeid','startstopid','endstopid']).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index()
-tp.columns=[(x[0]+x[1]).replace('%','') for x in tp.columns]
+
 tp['waittimeqcv']=(tp['waittime75']-tp['waittime25'])/tp['waittime50']
 tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
 tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
