@@ -22,7 +22,6 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
         tp=tp['VehicleMonitoringDelivery'][0]['VehicleActivity']
         veh=pd.DataFrame()
         veh['veh']=''
-        veh['prog']=''
         veh['time']=''
         veh['epoch']=np.nan
         veh['lat']=np.nan
@@ -40,7 +39,6 @@ while datetime.datetime.now(pytz.timezone('US/Eastern'))<endtime:
             try:
                 if np.isin(tp[j]['MonitoredVehicleJourney']['ProgressRate'],['normalProgress']):
                     veh.loc[j,'veh']=tp[j]['MonitoredVehicleJourney']['VehicleRef']
-                    veh.loc[j,'prog']=tp[j]['MonitoredVehicleJourney']['ProgressRate']
                     veh.loc[j,'time']=datetime.datetime.strptime(tp[j]['RecordedAtTime'].split('.')[0],'%Y-%m-%dT%H:%M:%S').strftime('%m%d%H%M%S')
                     veh.loc[j,'epoch']=pytz.timezone('US/Eastern').localize(datetime.datetime.strptime(tp[j]['RecordedAtTime'].split('.')[0],'%Y-%m-%dT%H:%M:%S')).timestamp()
                     veh.loc[j,'lat']=tp[j]['MonitoredVehicleJourney']['VehicleLocation']['Latitude']
