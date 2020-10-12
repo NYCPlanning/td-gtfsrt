@@ -78,6 +78,24 @@ sts.to_csv(path+'SIRI/Schedule/schedule.csv',index=False,header=True,mode='w')
 
 
 
+# Shape Distance
+trs=[]
+for i in ['bk','bs','bx','mn','qn','si']:
+    tr=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
+    trs+=[tr]
+trs=pd.concat(trs,axis=0,ignore_index=True)
+
+trs=[]
+for i in ['bk','bs','bx','mn','qn','si']:
+    tr=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
+    trs+=[tr]
+trs=pd.concat(trs,axis=0,ignore_index=True)
+
+
+
+
+
+
 # Summarize data by date
 dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))
 for d in dates:
@@ -112,7 +130,7 @@ tp=[]
 for i in sorted([x for x in os.listdir(path+'SIRI/Output/') if x.startswith('tp')]):
     tp.append(pd.read_csv(path+'SIRI/Output/'+str(i),dtype=str))
 tp=pd.concat(tp,axis=0,ignore_index=True)
-tp['jrn2']=['_'.join(x.split('_')[1:]) for x in tp['jrn']]
+tp['jrn']=['_'.join(x.split('_')[1:]) for x in tp['jrn']]
 
 
 tp['epoch1']=pd.to_numeric(tp['epoch1'])
