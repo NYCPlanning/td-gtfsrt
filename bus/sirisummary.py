@@ -27,6 +27,28 @@ px.histogram(tp,'mph')
 
 
 # Schedule
+trips=[]
+for i in ['bk','bs','bx','mn','qn','si']:
+    trip=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
+    trips+=[trip]
+trips=pd.concat(trips,axis=0,ignore_index=True)
+trips=trips[['route_id','direction_id','trip_id','trip_headsign']].reset_index(drop=True)
+
+sts=[]
+for i in ['bk','bs','bx','mn','qn','si']:
+    st=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/stop_times.txt',dtype=str)
+    sts+=[st]
+sts=pd.concat(sts,axis=0,ignore_index=True)
+
+
+
+
+
+
+k=pd.merge(tp,trips,how='left',left_on=['jrn2'],right_on=['trip_id'])
+k=k[k['dest']!=k['trip_headsign']]
+
+
 
 
 # dt=rttp[0:20].reset_index(drop=True)
@@ -58,6 +80,7 @@ def calc(dt):
 
 
 
+# Summarize data by date
 dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))
 for d in dates:
     rttp=[]
@@ -91,6 +114,9 @@ tp=[]
 for i in sorted([x for x in os.listdir(path+'SIRI/Output/') if x.startswith('tp')]):
     tp.append(pd.read_csv(path+'SIRI/Output/'+str(i),dtype=str))
 tp=pd.concat(tp,axis=0,ignore_index=True)
+tp['jrn2']=['_'.join(x.split('_')[1:]) for x in tp['jrn']]
+
+
 tp['epoch1']=pd.to_numeric(tp['epoch1'])
 tp['dist1']=pd.to_numeric(tp['dist1'])
 tp['epoch2']=pd.to_numeric(tp['epoch2'])
