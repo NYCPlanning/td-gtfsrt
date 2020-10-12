@@ -15,15 +15,21 @@ path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
 # path='/home/mayijun/GTFS-RT/Bus/'
 
 
+
+
+import plotly.io as pio
+import plotly.express as px
+
+pio.renderers.default = "browser"
+px.histogram(tp,'mph')
+
+
+
+
 # Schedule
 
 
-
-
-
-
-
-# dt=rttp[0:5].reset_index(drop=True)
+# dt=rttp[0:20].reset_index(drop=True)
 def calc(dt):
     dt=dt.reset_index(drop=True)
     dt['stpid1']=dt['stpid'].copy()
