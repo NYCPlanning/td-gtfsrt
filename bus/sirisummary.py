@@ -16,67 +16,65 @@ path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
 
 
 
+# Calculate schedule summary
+# sc=sts[0:8].reset_index(drop=True)
+def calcsc(sc):
+    sc=sc.reset_index(drop=True)
+    sc['stpid1']=sc['stpid'].copy()
+    sc['time1']=sc['time'].copy()
+    sc['sec1']=[pd.to_numeric(x.split(':')[0])*3600+pd.to_numeric(x.split(':')[1])*60+pd.to_numeric(x.split(':')[2]) for x in sc['time1']]
+    sc['stpid2']=np.roll(sc['stpid'],-1)
+    sc['time2']=np.roll(sc['time'],-1)
+    sc['sec2']=[pd.to_numeric(x.split(':')[0])*3600+pd.to_numeric(x.split(':')[1])*60+pd.to_numeric(x.split(':')[2]) for x in sc['time2']]
+    sc['scdur']=sc['sec2']-sc['sec1']
+    sc=sc.iloc[:-1,:].reset_index(drop=True)
+    sc=sc[['jrn','stpid1','stpid2','scdur']].reset_index(drop=True)
+    return sc
 
-import plotly.io as pio
-import plotly.express as px
 
-pio.renderers.default = "browser"
-px.histogram(tp,'mph')
 
+# Calculate real time summary
+# rt=rttp[0:20].reset_index(drop=True)
+def calcrt(rt):
+    rt=rt.reset_index(drop=True)
+    rt['stpid1']=rt['stpid'].copy()
+    rt['stpnm1']=rt['stpnm'].copy()
+    rt['time1']=rt['time'].copy()
+    rt['epoch1']=rt['epoch'].copy()
+    rt['dist1']=rt['dist'].copy()
+    rt['pax1']=rt['pax'].copy()
+    rt['cap1']=rt['cap'].copy()
+    rt['stpid2']=np.roll(rt['stpid'],-1)
+    rt['stpnm2']=np.roll(rt['stpnm'],-1)
+    rt['time2']=np.roll(rt['time'],-1)
+    rt['epoch2']=np.roll(rt['epoch'],-1)
+    rt['dist2']=np.roll(rt['dist'],-1)
+    rt['pax2']=np.roll(rt['pax'],-1)
+    rt['cap2']=np.roll(rt['cap'],-1)
+    rt['dur']=rt['epoch2']-rt['epoch1']
+    rt['dist']=rt['dist2']-rt['dist1']
+    rt['mph']=(rt['dist']/1609)/(rt['dur']/3600)
+    rt['pax']=rt['pax2'].copy()
+    rt['cap']=rt['cap2'].copy()
+    rt=rt.iloc[:-1,:].reset_index(drop=True)
+    rt=rt[['line','dir','dest','jrn','veh','stpid1','stpnm1','time1','epoch1','dist1',
+           'stpid2','stpnm2','time2','epoch2','dist2','dur','dist','mph','pax','cap']].reset_index(drop=True)
+    return rt
 
 
 
 # Schedule
-trips=[]
-for i in ['bk','bs','bx','mn','qn','si']:
-    trip=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
-    trips+=[trip]
-trips=pd.concat(trips,axis=0,ignore_index=True)
-trips=trips[['route_id','direction_id','trip_id','trip_headsign']].reset_index(drop=True)
-
 sts=[]
 for i in ['bk','bs','bx','mn','qn','si']:
     st=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/stop_times.txt',dtype=str)
     sts+=[st]
 sts=pd.concat(sts,axis=0,ignore_index=True)
-
-
-
-
-
-
-k=pd.merge(tp,trips,how='left',left_on=['jrn2'],right_on=['trip_id'])
-k=k[k['dest']!=k['trip_headsign']]
-
-
-
-
-# dt=rttp[0:20].reset_index(drop=True)
-def calc(dt):
-    dt=dt.reset_index(drop=True)
-    dt['stpid1']=dt['stpid'].copy()
-    dt['stpnm1']=dt['stpnm'].copy()
-    dt['time1']=dt['time'].copy()
-    dt['epoch1']=dt['epoch'].copy()
-    dt['dist1']=dt['dist'].copy()
-    dt['pax1']=dt['pax'].copy()
-    dt['cap1']=dt['cap'].copy()
-    dt['stpid2']=np.roll(dt['stpid'],-1)
-    dt['stpnm2']=np.roll(dt['stpnm'],-1)
-    dt['time2']=np.roll(dt['time'],-1)
-    dt['epoch2']=np.roll(dt['epoch'],-1)
-    dt['dist2']=np.roll(dt['dist'],-1)
-    dt['pax2']=np.roll(dt['pax'],-1)
-    dt['cap2']=np.roll(dt['cap'],-1)
-    dt['dur']=dt['epoch2']-dt['epoch1']
-    dt['dist']=dt['dist2']-dt['dist1']
-    dt['mph']=(dt['dist']/1609)/(dt['dur']/3600)
-    dt['pax']=dt['pax2'].copy()
-    dt['cap']=dt['cap2'].copy()
-    dt=dt.iloc[:-1,:].reset_index(drop=True)
-    dt=dt[['line','dir','dest','jrn','veh','stpid1','stpnm1','time1','epoch1','dist1',
-           'stpid2','stpnm2','time2','epoch2','dist2','dur','dist','mph','pax','cap']].reset_index(drop=True)
-    return dt
+sts['jrn']=sts['trip_id'].copy()
+sts['stpid']=sts['stop_id'].copy()
+sts['time']=sts['arrival_time'].copy()
+sts=sts[['jrn','stpid','time']].sort_values(['jrn','time'],ascending=True).drop_duplicates(keep='first').reset_index(drop=True)
+sts=sts.groupby(['jrn'],as_index=False).apply(calcsc).reset_index(drop=True)
+sts.to_csv(path+'SIRI/Schedule/schedule.csv',index=False,header=True,mode='w')
 
 
 
@@ -94,7 +92,7 @@ for d in dates:
     rttp['cap']=pd.to_numeric(rttp['cap'])
     rttp=rttp.sort_values(['line','dir','dest','jrn','veh','epoch'],ascending=True).reset_index(drop=True)
     rttp=rttp.drop_duplicates(['line','dir','dest','jrn','veh','stpid'],keep='last').reset_index(drop=True)
-    rttp=rttp.groupby(['line','dir','dest','jrn','veh'],as_index=False).apply(calc).reset_index(drop=True)
+    rttp=rttp.groupby(['line','dir','dest','jrn','veh'],as_index=False).apply(calcrt).reset_index(drop=True)
     rttp.to_csv(path+'SIRI/Output/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
 
 
@@ -171,9 +169,34 @@ tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat',
             'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
             'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
 tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
-#
-#
-#
+
+
+
+
+
+
+
+
+
+
+
+import plotly.io as pio
+import plotly.express as px
+
+pio.renderers.default = "browser"
+px.histogram(tp,'mph')
+
+
+
+
+
+
+
+
+
+
+
+
 ## Create shapes and calculate speeds
 #tp=pd.read_csv(path+'Output/API/APIOutput.csv',dtype=str)
 #for i in tp.columns[10:]:
