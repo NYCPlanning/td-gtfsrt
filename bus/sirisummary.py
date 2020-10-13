@@ -66,74 +66,74 @@ def calcrt(rt):
 
 
 
-# Schedule
-sts=[]
-for i in ['bk','bs','bx','mn','qn','si']:
-    st=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/stop_times.txt',dtype=str)
-    sts+=[st]
-sts=pd.concat(sts,axis=0,ignore_index=True)
-sts['jrn']=sts['trip_id'].copy()
-sts['stpid']=sts['stop_id'].copy()
-sts['time']=sts['arrival_time'].copy()
-sts=sts[['jrn','stpid','time']].sort_values(['jrn','time'],ascending=True).drop_duplicates(keep='first').reset_index(drop=True)
-sts=sts.groupby(['jrn'],as_index=False).apply(calcsc).reset_index(drop=True)
-sts.to_csv(path+'SIRI/Schedule/schedule.csv',index=False,header=True,mode='w')
+# # Schedule
+# sts=[]
+# for i in ['bk','bs','bx','mn','qn','si']:
+#     st=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/stop_times.txt',dtype=str)
+#     sts+=[st]
+# sts=pd.concat(sts,axis=0,ignore_index=True)
+# sts['jrn']=sts['trip_id'].copy()
+# sts['stpid']=sts['stop_id'].copy()
+# sts['time']=sts['arrival_time'].copy()
+# sts=sts[['jrn','stpid','time']].sort_values(['jrn','time'],ascending=True).drop_duplicates(keep='first').reset_index(drop=True)
+# sts=sts.groupby(['jrn'],as_index=False).apply(calcsc).reset_index(drop=True)
+# sts.to_csv(path+'SIRI/Schedule/schedule.csv',index=False,header=True,mode='w')
 
 
 
-# Trip Length
-trs=[]
-for i in ['bk','bs','bx','mn','qn','si']:
-    tr=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
-    trs+=[tr]
-trs=pd.concat(trs,axis=0,ignore_index=True)
-trs['jrn']=trs['trip_id'].copy()
-trs=trs[['jrn','shape_id']].reset_index(drop=True)
-sps=[]
-for i in ['bk','bs','bx','mn','qn','si']:
-    sp=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/shapes.txt',dtype=str,converters={'shape_pt_sequence':float})
-    sps+=[sp]
-sps=pd.concat(sps,axis=0,ignore_index=True)
-sps=sps.sort_values(['shape_id','shape_pt_sequence'],ascending=True).drop_duplicates(keep='first').reset_index(drop=True)
-sps['geom']=sps['shape_pt_lon']+' '+sps['shape_pt_lat']
-sps=sps.groupby(['shape_id'],as_index=False).agg({'geom': lambda x: ', '.join(x)}).reset_index(drop=True)
-sps['geom']='LINESTRING ('+sps['geom']+')'
-sps=gpd.GeoDataFrame(sps,geometry=sps['geom'].map(wkt.loads),crs='epsg:4326')
-sps=sps.to_crs('epsg:6539')
-sps['len']=[x.length*0.3048 for x in sps['geometry']]
-sps=sps[['shape_id','len']].reset_index(drop=True)
-trs=pd.merge(trs,sps,how='left',on='shape_id')
-trs=trs[['jrn','len']].reset_index(drop=True)
-trs.to_csv(path+'SIRI/Schedule/triplen.csv',index=False,header=True,mode='w')
+# # Trip Length
+# trs=[]
+# for i in ['bk','bs','bx','mn','qn','si']:
+#     tr=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
+#     trs+=[tr]
+# trs=pd.concat(trs,axis=0,ignore_index=True)
+# trs['jrn']=trs['trip_id'].copy()
+# trs=trs[['jrn','shape_id']].reset_index(drop=True)
+# sps=[]
+# for i in ['bk','bs','bx','mn','qn','si']:
+#     sp=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/shapes.txt',dtype=str,converters={'shape_pt_sequence':float})
+#     sps+=[sp]
+# sps=pd.concat(sps,axis=0,ignore_index=True)
+# sps=sps.sort_values(['shape_id','shape_pt_sequence'],ascending=True).drop_duplicates(keep='first').reset_index(drop=True)
+# sps['geom']=sps['shape_pt_lon']+' '+sps['shape_pt_lat']
+# sps=sps.groupby(['shape_id'],as_index=False).agg({'geom': lambda x: ', '.join(x)}).reset_index(drop=True)
+# sps['geom']='LINESTRING ('+sps['geom']+')'
+# sps=gpd.GeoDataFrame(sps,geometry=sps['geom'].map(wkt.loads),crs='epsg:4326')
+# sps=sps.to_crs('epsg:6539')
+# sps['len']=[x.length*0.3048 for x in sps['geometry']]
+# sps=sps[['shape_id','len']].reset_index(drop=True)
+# trs=pd.merge(trs,sps,how='left',on='shape_id')
+# trs=trs[['jrn','len']].reset_index(drop=True)
+# trs.to_csv(path+'SIRI/Schedule/triplen.csv',index=False,header=True,mode='w')
 
 
 
-# Summarize data by date
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))
-for d in dates:
-    rttp=[]
-    for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
-        print(str(i))
-        rttp.append(pd.read_csv(path+'SIRI/Raw/'+str(i),dtype=str))
-    rttp=pd.concat(rttp,axis=0,ignore_index=True)
-    rttp['epoch']=pd.to_numeric(rttp['epoch'])
-    rttp['dist']=pd.to_numeric(rttp['dist'])
-    rttp['pax']=pd.to_numeric(rttp['pax'])
-    rttp['cap']=pd.to_numeric(rttp['cap'])
-    rttp=rttp.sort_values(['line','dir','dest','jrn','veh','epoch'],ascending=True).reset_index(drop=True)
-    rttp=rttp.drop_duplicates(['line','dir','dest','jrn','veh','stpid'],keep='last').reset_index(drop=True)
-    rttp=rttp.groupby(['line','dir','dest','jrn','veh'],as_index=False).apply(calcrt).reset_index(drop=True)
-    rttp.to_csv(path+'SIRI/Output/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
+# # Summarize data by date
+# dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))
+# for d in dates:
+#     rttp=[]
+#     for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
+#         print(str(i))
+#         rttp.append(pd.read_csv(path+'SIRI/Raw/'+str(i),dtype=str))
+#     rttp=pd.concat(rttp,axis=0,ignore_index=True)
+#     rttp['epoch']=pd.to_numeric(rttp['epoch'])
+#     rttp['dist']=pd.to_numeric(rttp['dist'])
+#     rttp['pax']=pd.to_numeric(rttp['pax'])
+#     rttp['cap']=pd.to_numeric(rttp['cap'])
+#     rttp=rttp.sort_values(['line','dir','dest','jrn','veh','epoch'],ascending=True).reset_index(drop=True)
+#     rttp=rttp.drop_duplicates(['line','dir','dest','jrn','veh','stpid'],keep='last').reset_index(drop=True)
+#     rttp=rttp.groupby(['line','dir','dest','jrn','veh'],as_index=False).apply(calcrt).reset_index(drop=True)
+#     rttp.to_csv(path+'SIRI/Output/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
 
 
 
-# Remove data except the last date
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))[:-1]
-for d in dates:
-    for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
-        os.remove(path+'SIRI/Raw/'+str(i))
-    for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('sctp_'+str(d))]):
-        os.remove(path+'SIRI/Raw/'+str(i))
+# # Remove data except the last date
+# dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))[:-1]
+# for d in dates:
+#     for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
+#         os.remove(path+'SIRI/Raw/'+str(i))
+#     for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('sctp_'+str(d))]):
+#         os.remove(path+'SIRI/Raw/'+str(i))
 
 
 
@@ -142,7 +142,10 @@ tp=[]
 for i in sorted([x for x in os.listdir(path+'SIRI/Output/') if x.startswith('tp')]):
     tp.append(pd.read_csv(path+'SIRI/Output/'+str(i),dtype=str))
 tp=pd.concat(tp,axis=0,ignore_index=True)
+tp=tp.dropna(axis=0,subset=['line','dir','dest','jrn','veh','stpid1','epoch1','dist1','stpid2','epoch2','dist2','dur','dist','mph']).reset_index(drop=True)
 tp['jrn']=['_'.join(x.split('_')[1:]) for x in tp['jrn']]
+tp['stpid1']=['_'.join(x.split('_')[1:]) for x in tp['stpid1']]
+tp['stpid2']=['_'.join(x.split('_')[1:]) for x in tp['stpid2']]
 tp['epoch1']=pd.to_numeric(tp['epoch1'])
 tp['dist1']=pd.to_numeric(tp['dist1'])
 tp['epoch2']=pd.to_numeric(tp['epoch2'])
@@ -154,21 +157,26 @@ tp['pax']=pd.to_numeric(tp['pax'])
 tp['cap']=pd.to_numeric(tp['cap'])
 tp['wkd']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).weekday() for x in tp['epoch1']]
 tp['hour']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).hour for x in tp['epoch1']]
-
-
-
-
-k=tp.groupby(['jrn'],as_index=False).agg({'dist2':'max'}).reset_index(drop=True)
-trs=pd.read_csv(path+'SIRI/Schedule/triplen.csv',dtype=str,converters={'len':float})
-k=pd.merge(k,trs,how='left',on='jrn')
-px.scatter(k,x='dist2',y='len')
-
-
-
-
 tp=tp[np.isin(tp['wkd'],[0,1,2,3,4])].reset_index(drop=True)
 tp=tp[np.isin(tp['hour'],[6,7,8,9])].reset_index(drop=True)
+sts=pd.read_csv(path+'SIRI/Schedule/schedule.csv',dtype=str)
+tp=pd.merge(tp,sts,how='left',on=['jrn','stpid1','stpid2'])
+
+269128
+156214
+
+
 tp=tp[['line','dir','dest','stpid1','stpid2','dur','dist','mph','pax','cap']].reset_index(drop=True)
+
+
+    tp['delay']=tp.duration-tp.schedule
+    tp['delaypct']=tp.duration/tp.schedule
+
+
+
+
+
+
 
 
 k=tp.groupby(['line','dir','dest','stpid1','stpid2'],as_index=True).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index(drop=False)
