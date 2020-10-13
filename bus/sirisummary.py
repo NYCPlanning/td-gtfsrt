@@ -7,10 +7,13 @@ import time
 import os
 from shapely import wkt
 import pytz
+import plotly.io as pio
+import plotly.express as px
 
 
 
 pd.set_option('display.max_columns', None)
+pio.renderers.default = "browser"
 path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
 # path='/home/mayijun/GTFS-RT/Bus/'
 
@@ -78,21 +81,30 @@ sts.to_csv(path+'SIRI/Schedule/schedule.csv',index=False,header=True,mode='w')
 
 
 
-# Shape Distance
+# Trip Length
 trs=[]
 for i in ['bk','bs','bx','mn','qn','si']:
     tr=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
     trs+=[tr]
 trs=pd.concat(trs,axis=0,ignore_index=True)
-
-trs=[]
+trs['jrn']=trs['trip_id'].copy()
+trs=trs[['jrn','shape_id']].reset_index(drop=True)
+sps=[]
 for i in ['bk','bs','bx','mn','qn','si']:
-    tr=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/trips.txt',dtype=str)
-    trs+=[tr]
-trs=pd.concat(trs,axis=0,ignore_index=True)
-
-
-
+    sp=pd.read_csv(path+'SIRI/Schedule/google_transit_'+i+'/shapes.txt',dtype=str,converters={'shape_pt_sequence':float})
+    sps+=[sp]
+sps=pd.concat(sps,axis=0,ignore_index=True)
+sps=sps.sort_values(['shape_id','shape_pt_sequence'],ascending=True).drop_duplicates(keep='first').reset_index(drop=True)
+sps['geom']=sps['shape_pt_lon']+' '+sps['shape_pt_lat']
+sps=sps.groupby(['shape_id'],as_index=False).agg({'geom': lambda x: ', '.join(x)}).reset_index(drop=True)
+sps['geom']='LINESTRING ('+sps['geom']+')'
+sps=gpd.GeoDataFrame(sps,geometry=sps['geom'].map(wkt.loads),crs='epsg:4326')
+sps=sps.to_crs('epsg:6539')
+sps['len']=[x.length*0.3048 for x in sps['geometry']]
+sps=sps[['shape_id','len']].reset_index(drop=True)
+trs=pd.merge(trs,sps,how='left',on='shape_id')
+trs=trs[['jrn','len']].reset_index(drop=True)
+trs.to_csv(path+'SIRI/Schedule/triplen.csv',index=False,header=True,mode='w')
 
 
 
@@ -131,8 +143,6 @@ for i in sorted([x for x in os.listdir(path+'SIRI/Output/') if x.startswith('tp'
     tp.append(pd.read_csv(path+'SIRI/Output/'+str(i),dtype=str))
 tp=pd.concat(tp,axis=0,ignore_index=True)
 tp['jrn']=['_'.join(x.split('_')[1:]) for x in tp['jrn']]
-
-
 tp['epoch1']=pd.to_numeric(tp['epoch1'])
 tp['dist1']=pd.to_numeric(tp['dist1'])
 tp['epoch2']=pd.to_numeric(tp['epoch2'])
@@ -144,6 +154,18 @@ tp['pax']=pd.to_numeric(tp['pax'])
 tp['cap']=pd.to_numeric(tp['cap'])
 tp['wkd']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).weekday() for x in tp['epoch1']]
 tp['hour']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).hour for x in tp['epoch1']]
+
+
+
+
+k=tp.groupby(['jrn'],as_index=False).agg({'dist2':'max'}).reset_index(drop=True)
+trs=pd.read_csv(path+'SIRI/Schedule/triplen.csv',dtype=str,converters={'len':float})
+k=pd.merge(k,trs,how='left',on='jrn')
+px.scatter(k,x='dist2',y='len')
+
+
+
+
 tp=tp[np.isin(tp['wkd'],[0,1,2,3,4])].reset_index(drop=True)
 tp=tp[np.isin(tp['hour'],[6,7,8,9])].reset_index(drop=True)
 tp=tp[['line','dir','dest','stpid1','stpid2','dur','dist','mph','pax','cap']].reset_index(drop=True)
@@ -198,11 +220,7 @@ tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
 
 
 
-import plotly.io as pio
-import plotly.express as px
 
-pio.renderers.default = "browser"
-px.histogram(tp,'mph')
 
 
 
