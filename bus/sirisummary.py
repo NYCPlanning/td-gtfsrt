@@ -14,8 +14,8 @@ import plotly.express as px
 
 pd.set_option('display.max_columns', None)
 pio.renderers.default = "browser"
-path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
-# path='/home/mayijun/GTFS-RT/Bus/'
+# path='C:/Users/mayij/Desktop/DOC/DCP2019/GTFS-RT/Bus/'
+path='/home/mayijun/GTFS-RT/Bus/'
 
 
 
@@ -132,77 +132,76 @@ for d in dates:
 
 
 
-# # Remove data except the last date
-# dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))[:-1]
-# for d in dates:
-#     for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
-#         os.remove(path+'SIRI/Raw/'+str(i))
-#     for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('sctp_'+str(d))]):
-#         os.remove(path+'SIRI/Raw/'+str(i))
-
-
-
-# Summarize all the data and calculate AM peak metrics
-tp=[]
-for i in sorted([x for x in os.listdir(path+'SIRI/Output/') if x.startswith('tp')]):
-    tp.append(pd.read_csv(path+'SIRI/Output/'+str(i),dtype=str,converters={'dir':float,'epoch1':float,
-                                                                           'dist1':float,'epoch2':float,
-                                                                           'dist2':float,'wkd':float,
-                                                                           'hour':float,'dur':float,
-                                                                           'dist':float,'mph':float}))
-tp=pd.concat(tp,axis=0,ignore_index=True)
-tp['scdur']=pd.to_numeric(tp['scdur'])
-tp['pax']=pd.to_numeric(tp['pax'])
-tp['cap']=pd.to_numeric(tp['cap'])
-tp=tp[np.isin(tp['wkd'],[0,1,2,3,4])].reset_index(drop=True)
-tp=tp[np.isin(tp['hour'],[6,7,8,9])].reset_index(drop=True)
-tp=tp[['line','dir','dest','stpid1','stpid2','dur','scdur','dist','mph','pax','cap']].reset_index(drop=True)
-tp['dly']=tp['dur']-tp['scdur']
-tp['dlypct']=tp['dly']/tp['scdur']
-
-k=tp.groupby(['line','dir','dest','stpid1','stpid2'],as_index=True).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index(drop=False)
-k.columns=[(x[0]+x[1]).replace('%','') for x in k.columns]
+# Remove data except the last date
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('tp')]))[:-1]
+for d in dates:
+    for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('tp_'+str(d))]):
+        os.remove(path+'SIRI/Raw/'+str(i))
 
 
 
 
+# # Summarize all the data and calculate AM peak metrics
+# tp=[]
+# for i in sorted([x for x in os.listdir(path+'SIRI/Output/') if x.startswith('tp')]):
+#     tp.append(pd.read_csv(path+'SIRI/Output/'+str(i),dtype=str,converters={'dir':float,'epoch1':float,
+#                                                                            'dist1':float,'epoch2':float,
+#                                                                            'dist2':float,'wkd':float,
+#                                                                            'hour':float,'dur':float,
+#                                                                            'dist':float,'mph':float}))
+# tp=pd.concat(tp,axis=0,ignore_index=True)
+# tp['scdur']=pd.to_numeric(tp['scdur'])
+# tp['pax']=pd.to_numeric(tp['pax'])
+# tp['cap']=pd.to_numeric(tp['cap'])
+# tp=tp[np.isin(tp['wkd'],[0,1,2,3,4])].reset_index(drop=True)
+# tp=tp[np.isin(tp['hour'],[6,7,8,9])].reset_index(drop=True)
+# tp=tp[['line','dir','dest','stpid1','stpid2','dur','scdur','dist','mph','pax','cap']].reset_index(drop=True)
+# tp['dly']=tp['dur']-tp['scdur']
+# tp['dlypct']=tp['dly']/tp['scdur']
+
+# k=tp.groupby(['line','dir','dest','stpid1','stpid2'],as_index=True).describe(percentiles=[0.1,0.25,0.5,0.75,0.9]).reset_index(drop=False)
+# k.columns=[(x[0]+x[1]).replace('%','') for x in k.columns]
 
 
 
-tp['waittimeqcv']=(tp['waittime75']-tp['waittime25'])/tp['waittime50']
-tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
-tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
-tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
-tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
-tp=tp[tp['durationcount']>100]
-tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
-tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
-tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
-tp=tp[['routeid','route_color','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
-      'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
-      'waittimecount','waittimemin','waittimemax','waittimemean','waittimestd',
-      'waittime10','waittime25','waittime50','waittime75','waittime90','waittimeqcv',
-      'durationcount','durationmin','durationmax','durationmean','durationstd',
-      'duration10','duration25','duration50','duration75','duration90','durationqcv',
-      'schedulecount','schedulemin','schedulemax','schedulemean','schedulestd',
-      'schedule10','schedule25','schedule50','schedule75','schedule90','scheduleqcv',
-      'delaycount','delaymin','delaymax','delaymean','delaystd',
-      'delay10','delay25','delay50','delay75','delay90','delayqcv',
-      'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
-      'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']]
-tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat','startstoplong',
-            'endstopid','endstopname','endstoplat','endstoplong',
-            'waittimecount','waittimemin','waittimemax','waittimemean','waittimestd',
-            'waittime10','waittime25','waittime50','waittime75','waittime90','waittimeqcv',
-            'durationcount','durationmin','durationmax','durationmean','durationstd',
-            'duration10','duration25','duration50','duration75','duration90','durationqcv',
-            'schedulecount','schedulemin','schedulemax','schedulemean','schedulestd',
-            'schedule10','schedule25','schedule50','schedule75','schedule90','scheduleqcv',
-            'delaycount','delaymin','delaymax','delaymean','delaystd',
-            'delay10','delay25','delay50','delay75','delay90','delayqcv',
-            'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
-            'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
-tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
+
+
+
+
+# tp['waittimeqcv']=(tp['waittime75']-tp['waittime25'])/tp['waittime50']
+# tp['durationqcv']=(tp['duration75']-tp['duration25'])/tp['duration50']
+# tp['scheduleqcv']=(tp['schedule75']-tp['schedule25'])/tp['schedule50']
+# tp['delayqcv']=(tp['delay75']-tp['delay25'])/tp['delay50']
+# tp['delaypctqcv']=(tp['delaypct75']-tp['delaypct25'])/tp['delaypct50']
+# tp=tp[tp['durationcount']>100]
+# tp=pd.merge(tp,routes,how='left',left_on='routeid',right_on='route_id')
+# tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='startstopid',right_on='stop_id')
+# tp=pd.merge(tp,stops[['stop_id','stop_name','stop_lat','stop_lon']],how='left',left_on='endstopid',right_on='stop_id')
+# tp=tp[['routeid','route_color','startstopid','stop_name_x','stop_lat_x','stop_lon_x',
+#       'endstopid','stop_name_y','stop_lat_y','stop_lon_y',
+#       'waittimecount','waittimemin','waittimemax','waittimemean','waittimestd',
+#       'waittime10','waittime25','waittime50','waittime75','waittime90','waittimeqcv',
+#       'durationcount','durationmin','durationmax','durationmean','durationstd',
+#       'duration10','duration25','duration50','duration75','duration90','durationqcv',
+#       'schedulecount','schedulemin','schedulemax','schedulemean','schedulestd',
+#       'schedule10','schedule25','schedule50','schedule75','schedule90','scheduleqcv',
+#       'delaycount','delaymin','delaymax','delaymean','delaystd',
+#       'delay10','delay25','delay50','delay75','delay90','delayqcv',
+#       'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
+#       'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']]
+# tp.columns=['routeid','routecolor','startstopid','startstopname','startstoplat','startstoplong',
+#             'endstopid','endstopname','endstoplat','endstoplong',
+#             'waittimecount','waittimemin','waittimemax','waittimemean','waittimestd',
+#             'waittime10','waittime25','waittime50','waittime75','waittime90','waittimeqcv',
+#             'durationcount','durationmin','durationmax','durationmean','durationstd',
+#             'duration10','duration25','duration50','duration75','duration90','durationqcv',
+#             'schedulecount','schedulemin','schedulemax','schedulemean','schedulestd',
+#             'schedule10','schedule25','schedule50','schedule75','schedule90','scheduleqcv',
+#             'delaycount','delaymin','delaymax','delaymean','delaystd',
+#             'delay10','delay25','delay50','delay75','delay90','delayqcv',
+#             'delaypctcount','delaypctmin','delaypctmax','delaypctmean','delaypctstd',
+#             'delaypct10','delaypct25','delaypct50','delaypct75','delaypct90','delaypctqcv']
+# tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
 
 
 
@@ -323,16 +322,16 @@ tp.to_csv(path+'Output/API/APIOutput.csv',index=False,header=True,mode='w')
 
 
 
-df=[]
-vehs=os.listdir(path+'SIRI')
-for i in vehs:
-    df+=[pd.read_csv(path+'SIRI/'+i,dtype=str)]
-df=pd.concat(df,axis=0,ignore_index=True)
-df=df.sort_values(['veh','time'],ascending=True).reset_index(drop=True)
-df['geom']=df['long']+' '+df['lat']
-df=df.groupby(['veh','line','dir','dest'],as_index=False).agg({'geom': lambda x: ', '.join(x),'lat':'count'}).reset_index(drop=True)
-df['geom']='LINESTRING ('+df['geom']+')'
-df=df.loc[df['lat']!=1,['veh','line','dir','dest','geom']].reset_index(drop=True)
-df=gpd.GeoDataFrame(df,geometry=df['geom'].map(wkt.loads),crs={'init': 'epsg:4326'})
-df.to_file(path+'SIRI/SIRI.shp')
+# df=[]
+# vehs=os.listdir(path+'SIRI')
+# for i in vehs:
+#     df+=[pd.read_csv(path+'SIRI/'+i,dtype=str)]
+# df=pd.concat(df,axis=0,ignore_index=True)
+# df=df.sort_values(['veh','time'],ascending=True).reset_index(drop=True)
+# df['geom']=df['long']+' '+df['lat']
+# df=df.groupby(['veh','line','dir','dest'],as_index=False).agg({'geom': lambda x: ', '.join(x),'lat':'count'}).reset_index(drop=True)
+# df['geom']='LINESTRING ('+df['geom']+')'
+# df=df.loc[df['lat']!=1,['veh','line','dir','dest','geom']].reset_index(drop=True)
+# df=gpd.GeoDataFrame(df,geometry=df['geom'].map(wkt.loads),crs={'init': 'epsg:4326'})
+# df.to_file(path+'SIRI/SIRI.shp')
 
