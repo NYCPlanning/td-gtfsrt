@@ -85,50 +85,50 @@ def calcrt(rt):
 
 
 
-# # Summarize data by date
-# sts=pd.read_csv(path+'SIRI/Schedule/schedule.csv',dtype=str,converters={'scdur':float})
-# dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))
-# for d in dates:
-#     rttp=[]
-#     for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
-#         print(str(i))
-#         rttp.append(pd.read_csv(path+'SIRI/Raw/'+str(i),dtype=str))
-#     rttp=pd.concat(rttp,axis=0,ignore_index=True)
-#     rttp=rttp.dropna(axis=0,subset=['line','dir','dest','jrn','veh','stpid','epoch','dist']).reset_index(drop=True)
-#     rttp['jrn']=['_'.join(x.split('_')[1:]) for x in rttp['jrn']]
-#     rttp['stpid']=['_'.join(x.split('_')[1:]) for x in rttp['stpid']]
-#     rttp['epoch']=pd.to_numeric(rttp['epoch'])
-#     rttp['dist']=pd.to_numeric(rttp['dist'])
-#     rttp['pax']=pd.to_numeric(rttp['pax'])
-#     rttp['cap']=pd.to_numeric(rttp['cap'])
-#     rttp=rttp.sort_values(['line','dir','dest','jrn','veh','epoch'],ascending=True).reset_index(drop=True)
-#     rttp=rttp.drop_duplicates(['line','dir','dest','jrn','veh','stpid'],keep='last').reset_index(drop=True)
-#     rttp['stpid1']=rttp['stpid'].copy()
-#     rttp['stpnm1']=rttp['stpnm'].copy()
-#     rttp['time1']=rttp['time'].copy()
-#     rttp['epoch1']=rttp['epoch'].copy()
-#     rttp['dist1']=rttp['dist'].copy()
-#     rttp['pax1']=rttp['pax'].copy()
-#     rttp['cap1']=rttp['cap'].copy()
-#     rttp['stpid2']=np.roll(rttp['stpid'],-1)
-#     rttp['stpnm2']=np.roll(rttp['stpnm'],-1)
-#     rttp['time2']=np.roll(rttp['time'],-1)
-#     rttp['epoch2']=np.roll(rttp['epoch'],-1)
-#     rttp['dist2']=np.roll(rttp['dist'],-1)
-#     rttp['pax2']=np.roll(rttp['pax'],-1)
-#     rttp['cap2']=np.roll(rttp['cap'],-1)
-#     rttp['wkd']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).weekday() for x in rttp['epoch1']]
-#     rttp['hour']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).hour for x in rttp['epoch1']]
-#     rttp['dur']=rttp['epoch2']-rttp['epoch1']
-#     rttp['dist']=rttp['dist2']-rttp['dist1']
-#     rttp['mph']=(rttp['dist']/1609)/(rttp['dur']/3600)
-#     rttp['pax']=rttp['pax2'].copy()
-#     rttp['cap']=rttp['cap2'].copy()
-#     rttp=rttp.groupby(['line','dir','dest','jrn','veh'],as_index=False).apply(calcrt).reset_index(drop=True)
-#     rttp=pd.merge(rttp,sts,how='left',on=['jrn','stpid1','stpid2'])
-#     rttp=rttp[['line','dir','dest','jrn','veh','stpid1','stpnm1','time1','epoch1','dist1','stpid2','stpnm2',
-#                'time2','epoch2','dist2','wkd','hour','dur','scdur','dist','mph','pax','cap']].reset_index(drop=True)
-#     rttp.to_csv(path+'SIRI/Output/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
+# Summarize data by date
+sts=pd.read_csv(path+'SIRI/Schedule/schedule.csv',dtype=str,converters={'scdur':float})
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp')]))
+for d in dates:
+    rttp=[]
+    for i in sorted([x for x in os.listdir(path+'SIRI/Raw/') if x.startswith('rttp_'+str(d))]):
+        print(str(i))
+        rttp.append(pd.read_csv(path+'SIRI/Raw/'+str(i),dtype=str))
+    rttp=pd.concat(rttp,axis=0,ignore_index=True)
+    rttp=rttp.dropna(axis=0,subset=['line','dir','dest','jrn','veh','stpid','epoch','dist']).reset_index(drop=True)
+    rttp['jrn']=['_'.join(x.split('_')[1:]) for x in rttp['jrn']]
+    rttp['stpid']=['_'.join(x.split('_')[1:]) for x in rttp['stpid']]
+    rttp['epoch']=pd.to_numeric(rttp['epoch'])
+    rttp['dist']=pd.to_numeric(rttp['dist'])
+    rttp['pax']=pd.to_numeric(rttp['pax'])
+    rttp['cap']=pd.to_numeric(rttp['cap'])
+    rttp=rttp.sort_values(['line','dir','dest','jrn','veh','epoch'],ascending=True).reset_index(drop=True)
+    rttp=rttp.drop_duplicates(['line','dir','dest','jrn','veh','stpid'],keep='last').reset_index(drop=True)
+    rttp['stpid1']=rttp['stpid'].copy()
+    rttp['stpnm1']=rttp['stpnm'].copy()
+    rttp['time1']=rttp['time'].copy()
+    rttp['epoch1']=rttp['epoch'].copy()
+    rttp['dist1']=rttp['dist'].copy()
+    rttp['pax1']=rttp['pax'].copy()
+    rttp['cap1']=rttp['cap'].copy()
+    rttp['stpid2']=np.roll(rttp['stpid'],-1)
+    rttp['stpnm2']=np.roll(rttp['stpnm'],-1)
+    rttp['time2']=np.roll(rttp['time'],-1)
+    rttp['epoch2']=np.roll(rttp['epoch'],-1)
+    rttp['dist2']=np.roll(rttp['dist'],-1)
+    rttp['pax2']=np.roll(rttp['pax'],-1)
+    rttp['cap2']=np.roll(rttp['cap'],-1)
+    rttp['wkd']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).weekday() for x in rttp['epoch1']]
+    rttp['hour']=[datetime.datetime.fromtimestamp(x,tz=pytz.timezone('US/Eastern')).hour for x in rttp['epoch1']]
+    rttp['dur']=rttp['epoch2']-rttp['epoch1']
+    rttp['dist']=rttp['dist2']-rttp['dist1']
+    rttp['mph']=(rttp['dist']/1609)/(rttp['dur']/3600)
+    rttp['pax']=rttp['pax2'].copy()
+    rttp['cap']=rttp['cap2'].copy()
+    rttp=rttp.groupby(['line','dir','dest','jrn','veh'],as_index=False).apply(calcrt).reset_index(drop=True)
+    rttp=pd.merge(rttp,sts,how='left',on=['jrn','stpid1','stpid2'])
+    rttp=rttp[['line','dir','dest','jrn','veh','stpid1','stpnm1','time1','epoch1','dist1','stpid2','stpnm2',
+               'time2','epoch2','dist2','wkd','hour','dur','scdur','dist','mph','pax','cap']].reset_index(drop=True)
+    rttp.to_csv(path+'SIRI/Output/tp_'+str(d)+'.csv',index=False,header=True,mode='w')
 
 
 
