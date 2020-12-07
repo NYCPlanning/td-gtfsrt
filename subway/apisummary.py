@@ -51,7 +51,7 @@ def calwaittime(wt):
 
 
 # Summarize data by date
-dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))[11:]
+dates=sorted(pd.unique([x.split('_')[1] for x in os.listdir(path+'Raw/API/') if x.startswith('rttp')]))[19:]
 for d in dates:
     # Realtime
     rttp=[]
